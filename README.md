@@ -1,5 +1,6 @@
 ## typescript-benchmarks
 
 To run the benchmarks:
-1. Execute: npx tsc benchmark.ts --downlevelIteration
-2. Execute: node benchmark.js
+1. Move to folder: cd $PATH
+2. Execute: npx tsc benchmark.ts --downlevelIteration
+3. Execute: node benchmark.js

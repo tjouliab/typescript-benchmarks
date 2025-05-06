@@ -1,6 +1,6 @@
 import * as Benchmark from "benchmark";
 import { SetObjects } from "./set-objects";
-import { MockObjectSimple, MockUtils } from "../mock.utils";
+import { MockObjectSimple } from "../mock.utils";
 import { BenchmarkUtils } from "../benchmark.utils";
 
 /**
@@ -26,13 +26,6 @@ function filterListWithUniqueId(
 function createSetObjects(objects: MockObjectSimple[]): MockObjectSimple[] {
   return [...new SetObjects(objects, (object) => object.id)];
 }
-
-// const mockObjectsSimple10: MockObjectSimple[] = MockUtils.generateSimple(10);
-// const mockObjectsSimple100: MockObjectSimple[] = MockUtils.generateSimple(100);
-// const mockObjectsSimple1000: MockObjectSimple[] = MockUtils.generateSimple(1000);
-// const mockObjectsSimple10000: MockObjectSimple[] = MockUtils.generateSimple(10000);
-// const mockObjectsSimple100000: MockObjectSimple[] = MockUtils.generateSimple(100000);
-// const mockObjectsSimple1000000: MockObjectSimple[] = MockUtils.generateSimple(1000000);
 
 // Create a new benchmark suite
 const suite = new Benchmark.Suite();

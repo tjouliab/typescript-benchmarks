@@ -1,4 +1,4 @@
-import { shuffle } from "./array.utils";
+import { ArrayUtils } from "./array.utils";
 
 export type MockObjectSimple = {
   id: number;
@@ -12,7 +12,7 @@ export type MockObjectComplex = MockObjectSimple & {
 
 export abstract class MockUtils {
   static generateSimple(count: number): MockObjectSimple[] {
-    return shuffle(
+    return ArrayUtils.shuffle(
       [...Array(count).keys()].map((i) => {
         return {
           id: i % 1000,
@@ -23,7 +23,7 @@ export abstract class MockUtils {
   }
 
   static generateComplex(count: number): MockObjectComplex[] {
-    return shuffle(
+    return ArrayUtils.shuffle(
       [...Array(count).keys()].map((i) => {
         return {
           id: i % 1000,
