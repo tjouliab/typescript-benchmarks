@@ -1,5 +1,5 @@
 import * as Benchmark from "benchmark";
-import { SetObjects } from "./set-objects";
+import { SetObjectsHash } from "./set-objects-hash";
 import { MockObjectSimple } from "../mock.utils";
 import { BenchmarkUtils } from "../benchmark.utils";
 
@@ -24,7 +24,7 @@ function filterListWithUniqueId(
 }
 
 function createSetObjects(objects: MockObjectSimple[]): MockObjectSimple[] {
-  return [...new SetObjects(objects, (object) => object.id)];
+  return [...new SetObjectsHash(objects, (object) => object.id)];
 }
 
 // Create a new benchmark suite

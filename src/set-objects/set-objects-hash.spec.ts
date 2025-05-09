@@ -1,6 +1,6 @@
-import { SetObjects } from "./set-objects";
+import { SetObjectsHash } from "./set-objects-hash";
 
-describe("SetObjects", () => {
+describe("SetObjectsHash", () => {
   interface TestObject {
     id: number;
     name: string;
@@ -10,10 +10,10 @@ describe("SetObjects", () => {
   describe("Hashing function based on id", () => {
     const hashFn = (obj: TestObject) => obj.id;
 
-    let setObjects: SetObjects<TestObject, number>;
+    let setObjects: SetObjectsHash<TestObject, number>;
 
     beforeEach(() => {
-      setObjects = new SetObjects<TestObject, number>([], hashFn);
+      setObjects = new SetObjectsHash<TestObject, number>([], hashFn);
     });
 
     it("should add an object to the set", () => {
@@ -48,7 +48,7 @@ describe("SetObjects", () => {
     it("should initialize with an array of objects", () => {
       const obj1: TestObject = { id: 1, name: "Object 1", data: [1, 1, 1] };
       const obj2: TestObject = { id: 2, name: "Object 2", data: [2, 2, 2] };
-      setObjects = new SetObjects<TestObject, number>([obj1, obj2], hashFn);
+      setObjects = new SetObjectsHash<TestObject, number>([obj1, obj2], hashFn);
       expect(setObjects.has(obj1)).toBe(true);
       expect(setObjects.has(obj2)).toBe(true);
     });
@@ -57,10 +57,10 @@ describe("SetObjects", () => {
   describe("Hashing function based on name", () => {
     const hashFn = (obj: TestObject) => obj.name;
 
-    let setObjects: SetObjects<TestObject, string>;
+    let setObjects: SetObjectsHash<TestObject, string>;
 
     beforeEach(() => {
-      setObjects = new SetObjects<TestObject, string>([], hashFn);
+      setObjects = new SetObjectsHash<TestObject, string>([], hashFn);
     });
 
     it("should add an object to the set", () => {
@@ -95,7 +95,7 @@ describe("SetObjects", () => {
     it("should initialize with an array of objects", () => {
       const obj1: TestObject = { id: 1, name: "Object 1", data: [1, 1, 1] };
       const obj2: TestObject = { id: 2, name: "Object 2", data: [2, 2, 2] };
-      setObjects = new SetObjects<TestObject, string>([obj1, obj2], hashFn);
+      setObjects = new SetObjectsHash<TestObject, string>([obj1, obj2], hashFn);
       expect(setObjects.has(obj1)).toBe(true);
       expect(setObjects.has(obj2)).toBe(true);
     });
@@ -107,10 +107,10 @@ describe("SetObjects", () => {
         return acc + val;
       }, 0);
 
-    let setObjects: SetObjects<TestObject, number>;
+    let setObjects: SetObjectsHash<TestObject, number>;
 
     beforeEach(() => {
-      setObjects = new SetObjects<TestObject, number>([], hashFn);
+      setObjects = new SetObjectsHash<TestObject, number>([], hashFn);
     });
 
     it("should add an object to the set", () => {
@@ -145,7 +145,7 @@ describe("SetObjects", () => {
     it("should initialize with an array of objects", () => {
       const obj1: TestObject = { id: 1, name: "Object 1", data: [1, 1, 1] };
       const obj2: TestObject = { id: 2, name: "Object 2", data: [2, 2, 2] };
-      setObjects = new SetObjects<TestObject, number>([obj1, obj2], hashFn);
+      setObjects = new SetObjectsHash<TestObject, number>([obj1, obj2], hashFn);
       expect(setObjects.has(obj1)).toBe(true);
       expect(setObjects.has(obj2)).toBe(true);
     });

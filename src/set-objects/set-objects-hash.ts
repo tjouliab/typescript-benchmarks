@@ -4,7 +4,7 @@
  * @template T - The type of objects to be stored in the set.
  * @template U - The type of the unique identifier for the objects, which can be either a string or a number.
  */
-export class SetObjects<T extends object, U extends string | number> {
+export class SetObjectsHash<T extends object, U extends string | number> {
   /**
    * A function that generates a unique identifier for an object.
    */
@@ -16,7 +16,7 @@ export class SetObjects<T extends object, U extends string | number> {
   private readonly objectsMap: Map<U, T> = new Map();
 
   /**
-   * Creates an instance of SetObjects.
+   * Creates an instance of {@link SetObjectsHash}.
    *
    * @param objects - An array of objects to be initially added to the set.
    * @param fn - A function that generates a unique identifier for an object.
