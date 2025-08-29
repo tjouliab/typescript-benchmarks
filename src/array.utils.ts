@@ -6,4 +6,17 @@ export abstract class ArrayUtils {
     }
     return array;
   }
+
+  static sliceRandomly<T>(
+    list: T[],
+    slice: number,
+    compareFn?: (item1: T, item2: T) => number
+  ): T[] {
+    const shuffled = ArrayUtils.shuffle(list);
+    const sliced = shuffled.slice(list.length - slice);
+    if (compareFn) {
+      return sliced.sort(compareFn);
+    }
+    return sliced.sort((item1, item2) => (item1 <= item2 ? -1 : 1));
+  }
 }
