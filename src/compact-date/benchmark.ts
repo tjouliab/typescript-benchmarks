@@ -1,5 +1,5 @@
 import * as Benchmark from "benchmark";
-import { convertDateToCompactDate } from "./compact-date.utils";
+import { convertDateToCompactDate } from "../compact-date.utils";
 
 const date: Date = new Date();
 
