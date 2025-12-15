@@ -1,4 +1,9 @@
+import { Duration } from "luxon";
 import { CompactDate, TimeUnitBase } from "./compact-date";
+import {
+  convertDateToCompactDate,
+  convertLuxonToCompactDate,
+} from "./compact-date.utils";
 
 /**
  * A class representing a date range optimized for performance by mimicking the behavior of Moment's DateRange.
@@ -102,17 +107,45 @@ export class CompactDateRange {
     return this.end.diff(this.start, unit);
   }
 
-  public by(
-    unit: TimeUnitBase,
-    options?: { step?: number }
-  ): CompactDate[] {
+  public by(unit: TimeUnitBase, options?: { step?: number }): CompactDate[] {
     const step = options?.step ?? 1;
-    const dates: CompactDate[] = [];
+    if (unit === "seconds" || unit === "minutes") {
+      return this.bySecondsMinutes(unit, step); // Use this for faster computation
+    }
+    return this.byGeneric(unit, step);
+  }
 
-    let currentDate = this.start.clone(); // Start from the beginning of the range
-    while (currentDate.isSameOrBefore(this.end)) {
-      dates.push(currentDate.clone()); // Add current date to the array
-      currentDate = currentDate.add(step, unit); // Increment by the specified step and unit
+  private bySecondsMinutes(
+    unit: "minutes" | "seconds",
+    step: number
+  ): CompactDate[] {
+    const endTimestamp = this.end.toTimestamp();
+    let currentTimestamp = this.start.toTimestamp();
+
+    const durationMs = Duration.fromObject({ [unit]: step }).toMillis();
+
+    const dates: CompactDate[] = [];
+    while (currentTimestamp <= endTimestamp) {
+      dates.push(convertDateToCompactDate(new Date(currentTimestamp))); // Add current date to the array
+      currentTimestamp += durationMs; // Increment by the specified step and unit
+    }
+
+    return dates;
+  }
+
+  private byGeneric(
+    unit: Exclude<TimeUnitBase, "minutes" | "seconds">,
+    step: number
+  ): CompactDate[] {
+    const endLuxon = this.end.toLuxon();
+    let currentDate = this.start.toLuxon();
+
+    const duration = Duration.fromObject({ [unit]: step });
+
+    const dates: CompactDate[] = [];
+    while (currentDate <= endLuxon) {
+      dates.push(convertLuxonToCompactDate(currentDate)); // Add current date to the array
+      currentDate = currentDate.plus(duration); // Increment by the specified step and unit
     }
 
     return dates;

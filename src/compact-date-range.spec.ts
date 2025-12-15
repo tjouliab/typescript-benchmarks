@@ -254,6 +254,78 @@ describe("by", () => {
   const momentEnd = moment.utc("2024-04-08T12:36:25.000Z");
   const momentDateRange = new DateRange(momentStart, momentEnd);
 
+  it("should return all dates incremented by 1 year within the range", () => {
+    const compactStartYear = new CompactDate("20200405120000");
+    const compactEndYear = new CompactDate("20250705150000");
+    const compactDateRangeYear = new CompactDateRange(
+      compactStartYear,
+      compactEndYear
+    );
+
+    const momentStart = moment.utc("2020-04-05T12:00:00.000Z");
+    const momentEnd = moment.utc("2025-07-05T15:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("years")).map((date) =>
+      convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeYear.by("years")).toEqual(expected);
+  });
+
+  it("should return all dates incremented by 2 year within the range", () => {
+    const compactStartYear = new CompactDate("20200405120000");
+    const compactEndYear = new CompactDate("20250705150000");
+    const compactDateRangeYear = new CompactDateRange(
+      compactStartYear,
+      compactEndYear
+    );
+
+    const momentStart = moment.utc("2020-04-05T12:00:00.000Z");
+    const momentEnd = moment.utc("2025-07-05T15:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("years", { step: 2 })).map(
+      (date) => convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeYear.by("years", { step: 2 })).toEqual(expected);
+  });
+
+  it("should return all dates incremented by 1 month within the range", () => {
+    const compactStartMonth = new CompactDate("20240405120000");
+    const compactEndMonth = new CompactDate("20240705150000");
+    const compactDateRangeMonth = new CompactDateRange(
+      compactStartMonth,
+      compactEndMonth
+    );
+
+    const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
+    const momentEnd = moment.utc("2024-07-05T15:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("months")).map((date) =>
+      convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeMonth.by("months")).toEqual(expected);
+  });
+
+  it("should return all dates incremented by 2 month within the range", () => {
+    const compactStartMonth = new CompactDate("20240405120000");
+    const compactEndMonth = new CompactDate("20240705150000");
+    const compactDateRangeMonth = new CompactDateRange(
+      compactStartMonth,
+      compactEndMonth
+    );
+
+    const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
+    const momentEnd = moment.utc("2024-07-05T15:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("months", { step: 2 })).map(
+      (date) => convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeMonth.by("months", { step: 2 })).toEqual(expected);
+  });
+
   it("should return all dates incremented by 1 day within the range", () => {
     const expected = Array.from(momentDateRange.by("days")).map((date) =>
       convertMomentToCompactDate(date)
@@ -304,6 +376,42 @@ describe("by", () => {
     expect(compactDateRangeHour.by("hours", { step: 3 })).toEqual(expected);
   });
 
+  it("should return dates incremented by 3 minutes within the range", () => {
+    const compactStartHour = new CompactDate("20240101000000");
+    const compactEndHour = new CompactDate("20240102000000");
+    const compactDateRangeHour = new CompactDateRange(
+      compactStartHour,
+      compactEndHour
+    );
+
+    const momentStart = moment.utc("2024-01-01T00:00:00.000Z");
+    const momentEnd = moment.utc("2024-01-02T00:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("minutes", { step: 3 })).map(
+      (date) => convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeHour.by("minutes", { step: 3 })).toEqual(expected);
+  });
+
+  it("should return dates incremented by 3 seconds within the range", () => {
+    const compactStartHour = new CompactDate("20240101000000");
+    const compactEndHour = new CompactDate("20240102000000");
+    const compactDateRangeHour = new CompactDateRange(
+      compactStartHour,
+      compactEndHour
+    );
+
+    const momentStart = moment.utc("2024-01-01T00:00:00.000Z");
+    const momentEnd = moment.utc("2024-01-02T00:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
+    const expected = Array.from(momentDateRange.by("seconds", { step: 3 })).map(
+      (date) => convertMomentToCompactDate(date)
+    );
+    expect(compactDateRangeHour.by("seconds", { step: 3 })).toEqual(expected);
+  });
+
   it("should handle large step size, returning only the start date", () => {
     const expected = Array.from(momentDateRange.by("days", { step: 10 })).map(
       (date) => convertMomentToCompactDate(date)
@@ -311,5 +419,3 @@ describe("by", () => {
     expect(compactDateRange.by("days", { step: 10 })).toEqual(expected);
   });
 });
-
-
