@@ -336,6 +336,6 @@ export class CompactDate {
     // Filtered units allow Luxon to accurately return the duration in requested unit
     const filteredUnits = ALL_UNITS_ORDERED.slice(unitIndex);
     const duration = firstDate.diff(secondDate, filteredUnits);
-    return duration.toObject()[unit]!;
+    return duration.toObject()[unit] ?? 0;
   }
 }
