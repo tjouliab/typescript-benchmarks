@@ -10,7 +10,7 @@ function deepCloneValue<T>(value: T): T {
     // Clone each property of plain object
     const cloned: Record<string, any> = {};
     for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
+      if (Object.hasOwn(value, key)) {
         cloned[key] = deepCloneValue((value as Record<string, unknown>)[key]);
       }
     }

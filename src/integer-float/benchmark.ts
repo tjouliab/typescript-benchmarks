@@ -1,21 +1,29 @@
 import * as Benchmark from "benchmark";
 
-const num = {
+const num1 = {
   x: 42,
   y: 4.2,
 };
+const num2 = { ...num1 };
 
-const step: number = 0.5;
+const stepFloat: number = 0.5;
+const stepInt: number = 2;
 
 // Create a new benchmark suite
 const suite = new Benchmark.Suite();
 
 suite
-  .add(`int + step`, () => {
-    num.x += step;
+  .add(`int + stepFloat`, () => {
+    num1.x += stepFloat;
   })
-  .add(`float + step`, () => {
-    num.y += step;
+  .add(`float + stepFloat`, () => {
+    num1.y += stepFloat;
+  })
+  .add(`int + stepInt`, () => {
+    num2.x += stepInt;
+  })
+  .add(`float + stepInt`, () => {
+    num2.y += stepInt;
   })
 
   // Add listeners
