@@ -1005,6 +1005,27 @@ describe("toHumanFriendlyFormat", () => {
   });
 });
 
+describe("toInstant", () => {
+  it("should return the date well formatted", () => {
+    const date = new CompactDate("20240110230533");
+    const result = date.toInstant().toString();
+
+    const dateMoment = convertStringToUTC("20240110230533");
+    const expected = dateMoment.toISOString();
+
+    expect(result).toEqual(expected);
+  });
+  it("should return the date well formatted with ms", () => {
+    const date = new CompactDate("20240110230533.123");
+    const result = date.toInstant().toString();
+
+    const dateMoment = convertStringToUTC("20240110230533.123");
+    const expected = dateMoment.toISOString();
+
+    expect(result).toEqual(expected);
+  });
+});
+
 describe("toLuxon", () => {
   it("should return the date well formatted", () => {
     const date = new CompactDate("20240110230533");

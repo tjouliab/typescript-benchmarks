@@ -98,11 +98,11 @@ export class CompactDate {
    * @param date string entry in {@link CompactFormat}
    */
   public static validateDate(date: string): CompactDate {
-    if (!CompactDate.validateFormat(date)) return;
+    if (!CompactDate.validateFormat(date)) return CompactDate.now();
 
     const dateIso = convertCompactToIso(date);
     const dateLuxon = DateTime.fromISO(dateIso, { zone: "utc" });
-    if (!dateLuxon.isValid) return;
+    if (!dateLuxon.isValid) return CompactDate.now();
 
     return new CompactDate(date);
   }
@@ -295,6 +295,9 @@ export class CompactDate {
     // YYYY-MM-DD - HH:mm:ss.SSS
     const milliSecondString = this._date.substring(15);
     return `${yearString}-${monthString}-${dayString} - ${hourString}:${minuteString}:${secondString}.${milliSecondString}`;
+  }
+  public toInstant(): Temporal.Instant {
+    return Temporal.Instant.from(this.toISOString());
   }
   public toLuxon(): DateTime {
     return DateTime.fromISO(this.toISOString()).toUTC();
