@@ -1,5 +1,10 @@
 import { DateTime } from "luxon";
-import { CompactFormat, convertStringToUTC } from "./time.utils";
+import {
+  CompactFormat,
+  CompactFormatMs,
+  convertStringToUTC,
+  EMPTY_MS,
+} from "./time.utils";
 import {
   convertCompactToIso,
   convertCompactToIsoDisplay,
@@ -13,9 +18,10 @@ export type TimeUnitBase =
   | "days"
   | "hours"
   | "minutes"
-  | "seconds";
+  | "seconds"
+  | "milliseconds";
 
-type TimeUnitStartOf = "year" | "month" | "day";
+type TimeUnitStartOf = "year" | "month" | "day" | "minute";
 
 const ALL_UNITS_ORDERED: TimeUnitBase[] = [
   "years",
@@ -24,6 +30,7 @@ const ALL_UNITS_ORDERED: TimeUnitBase[] = [
   "hours",
   "minutes",
   "seconds",
+  "milliseconds",
 ];
 
 /**
@@ -32,7 +39,7 @@ const ALL_UNITS_ORDERED: TimeUnitBase[] = [
  * This class is designed to serve as a high-performance alternative to Moment.js,
  * offering essential date manipulation, comparison, and formatting functionalities.
  *
- * It utilizes a compact date format (`YYYYMMDDHHmmss`) to store date information, allowing for faster
+ * It utilizes a compact date format (`YYYYMMDDHHmmss.SSS`) to store date information, allowing for faster
  * operations and easier replacement of Moment.js instances in the codebase.
  * Also, we are using JavaScript's native Date and Luxon for complex operations, ensuring balance between performance and accuracy.
  */
@@ -40,53 +47,63 @@ export class CompactDate {
   private _date!: string;
 
   /**
-   * Creates a CompactDate instance from a string in {@link CompactFormat}.
+   * Creates a CompactDate instance from a string in {@link CompactFormat} or {@link CompactFormatMs}.
    */
-  constructor(compactDateString?: string) {
-    if (!compactDateString) {
-      // If no date is specified, get the current date
-      this.date = convertDateToCompactDate(new Date()).date;
-    } else {
-      this.date = compactDateString;
-    }
+  constructor(compactDateString: string) {
+    this.date = compactDateString;
   }
 
   // Declare getter/setter
   public get date(): string {
+    if (!this.containsMs()) {
+      return `${this._date.substring(0, 14)}`;
+    }
     return this._date;
   }
   public set date(date: string) {
     // Use length check as it is the fastest way to check for a valid CompactFormat
-    if (date.length !== CompactFormat.length) {
+    if (!CompactDate.validateFormat(date)) {
       throw new Error(
-        `Date should be in CompactFormat: YYYYMMDDHHmmss. Received input: ${date}`
+        `Date should be in CompactFormat: YYYYMMDDHHmmss or YYYYMMDDHHmmss.sss received input: ${date}`,
       );
+    } else if (date.length === CompactFormat.length) {
+      this._date = `${date}.${EMPTY_MS}`;
+    } else {
+      this._date = date;
     }
-    this._date = date;
   }
 
   public clone(): CompactDate {
-    return new CompactDate(this.date);
+    return new CompactDate(this._date);
   }
 
   public isValid(): boolean {
     return this.toLuxon().isValid;
   }
 
+  public static validateFormat(date: string): boolean {
+    return [CompactFormat.length, CompactFormatMs.length].includes(
+      date?.length,
+    );
+  }
+
+  public static now(hasMs: boolean = false): CompactDate {
+    const date = convertDateToCompactDate(new Date());
+    return hasMs ? date : date.millisecond(0);
+  }
+
   /**
    * An alternative to the constructor that will check explicitly for date validity.
-   * The default constructor should be used if there is no need for a
+   * The default constructor should be used if there is no need for explicit validation.
    * @param date string entry in {@link CompactFormat}
    */
   public static validateDate(date: string): CompactDate {
-    if (date?.length !== CompactFormat.length) {
-      throw Error;
-    }
+    if (!CompactDate.validateFormat(date)) return;
+
     const dateIso = convertCompactToIso(date);
     const dateLuxon = DateTime.fromISO(dateIso, { zone: "utc" });
-    if (!dateLuxon.isValid) {
-      throw Error;
-    }
+    if (!dateLuxon.isValid) return;
+
     return new CompactDate(date);
   }
 
@@ -129,102 +146,125 @@ export class CompactDate {
   // Access/Modify informations
   // Using "== null" permits to check both for null and undefined
   public year(): number;
-  public year(year: number): CompactDate;
-  public year(year?: number): number | CompactDate {
+  public year(year: number): this;
+  public year(year?: number): number | this {
     if (year == null) {
-      return +this.date.substring(0, 4);
+      return +this._date.substring(0, 4);
     } else if (year < 0 || 9999 < year) {
       throw new Error(
-        `Date year not in range 0 - 9999. Received input: ${year}`
+        `Date year not in range 0 - 9999. Received input: ${year}`,
       );
     }
     const yearString = year.toString().padStart(4, "0");
-    this.date = `${yearString}${this.date.substring(4)}`;
+    this.date = `${yearString}${this._date.substring(4)}`;
     return this;
   }
 
   public month(): number;
-  public month(month: number): CompactDate;
-  public month(month?: number): number | CompactDate {
+  public month(month: number): this;
+  public month(month?: number): number | this {
     if (month == null) {
-      return +this.date.substring(4, 6) - 1;
+      return +this._date.substring(4, 6) - 1;
     } else if (month < 1 || 12 < month) {
       throw new Error(
-        `Date month not in valid range 1 - 12. Received input: ${month}`
+        `Date month not in valid range 1 - 12. Received input: ${month}`,
       );
     }
     const monthString = (month + 1).toString().padStart(2, "0");
-    this.date = `${this.date.substring(
+    this.date = `${this._date.substring(
       0,
-      4
-    )}${monthString}${this.date.substring(6)}`;
+      4,
+    )}${monthString}${this._date.substring(6)}`;
     return this;
   }
 
   public day(): number;
-  public day(day: number): CompactDate;
-  public day(day?: number): number | CompactDate {
+  public day(day: number): this;
+  public day(day?: number): number | this {
     if (day == null) {
-      return +this.date.substring(6, 8);
+      return +this._date.substring(6, 8);
     } else if (day < 1 || 31 < day) {
       throw new Error(
-        `Date day not in valid range 1 - 31. Received input: ${day}`
+        `Date day not in valid range 1 - 31. Received input: ${day}`,
       );
     }
     const dayString = day.toString().padStart(2, "0");
-    this.date = `${this.date.substring(0, 6)}${dayString}${this.date.substring(
-      8
-    )}`;
+    this.date = `${this._date.substring(
+      0,
+      6,
+    )}${dayString}${this._date.substring(8)}`;
     return this;
   }
 
   public hour(): number;
-  public hour(hour: number): CompactDate;
-  public hour(hour?: number): number | CompactDate {
+  public hour(hour: number): this;
+  public hour(hour?: number): number | this {
     if (hour == null) {
-      return +this.date.substring(8, 10);
+      return +this._date.substring(8, 10);
     } else if (hour < 0 || 23 < hour) {
       throw new Error(
-        `Date hour not in valid range 0 - 23. Received input: ${hour}`
+        `Date hour not in valid range 0 - 23. Received input: ${hour}`,
       );
     }
     const hourString = hour.toString().padStart(2, "0");
-    this.date = `${this.date.substring(0, 8)}${hourString}${this.date.substring(
-      10
-    )}`;
+    this.date = `${this._date.substring(
+      0,
+      8,
+    )}${hourString}${this._date.substring(10)}`;
     return this;
   }
 
   public minute(): number;
-  public minute(minute: number): CompactDate;
-  public minute(minute?: number): number | CompactDate {
+  public minute(minute: number): this;
+  public minute(minute?: number): number | this {
     if (minute == null) {
-      return +this.date.substring(10, 12);
+      return +this._date.substring(10, 12);
     } else if (minute < 0 || 59 < minute) {
       throw new Error(
-        `Date minute not in valid range 0 - 59. Received input: ${minute}`
+        `Date minute not in valid range 0 - 59. Received input: ${minute}`,
       );
     }
     const minuteString = minute.toString().padStart(2, "0");
-    this.date = `${this.date.substring(
+    this.date = `${this._date.substring(
       0,
-      10
-    )}${minuteString}${this.date.substring(12)}`;
+      10,
+    )}${minuteString}${this._date.substring(12)}`;
     return this;
   }
 
   public second(): number;
-  public second(second: number): CompactDate;
-  public second(second?: number): number | CompactDate {
+  public second(second: number): this;
+  public second(second?: number): number | this {
     if (second == null) {
-      return +this.date.substring(12);
+      return +this._date.substring(12, 14);
     } else if (second < 0 || 59 < second) {
       throw new Error(
-        `Date second not in valid range 0 - 59. Received input: ${second}`
+        `Date second not in valid range 0 - 59. Received input: ${second}`,
       );
     }
     const secondString = second.toString().padStart(2, "0");
-    this.date = `${this.date.substring(0, 12)}${secondString}`;
+    this.date = `${this._date.substring(
+      0,
+      12,
+    )}${secondString}${this._date.substring(14)}`;
+    return this;
+  }
+
+  public millisecond(): number;
+  public millisecond(millisecond: number): this;
+  public millisecond(millisecond?: number): number | this {
+    if (millisecond == null) {
+      return +this._date.substring(15, 18);
+    } else if (millisecond < 0 || 999 < millisecond) {
+      throw new Error(
+        `Date second not in valid range 0 - 999. Received input: ${millisecond}`,
+      );
+    } else if (millisecond === 0) {
+      this.date = `${this._date.substring(0, 14)}`;
+    } else {
+      const millisecondString = millisecond.toString().padStart(3, "0");
+      this.date = `${this._date.substring(0, 14)}.${millisecondString}`;
+    }
     return this;
   }
 
@@ -239,24 +279,22 @@ export class CompactDate {
     return convertCompactToIsoDisplay(this.date);
   }
   public toBigQueryFormatUTC(): string {
-    const yearString = this.date.substring(0, 4);
-    const monthString = this.date.substring(4, 6);
-    const dayString = this.date.substring(6, 8);
-    const hourString = this.date.substring(8, 10);
-    const minuteString = this.date.substring(10, 12);
-    const secondString = this.date.substring(12);
-    // YYYY-MM-DD HH:mm:ss UTC
-    return `${yearString}-${monthString}-${dayString} ${hourString}:${minuteString}:${secondString} UTC`;
+    return `${this.toISODisplay()} UTC`;
   }
   public toHumanFriendlyFormat(): string {
-    const yearString = this.date.substring(0, 4);
-    const monthString = this.date.substring(4, 6);
-    const dayString = this.date.substring(6, 8);
-    const hourString = this.date.substring(8, 10);
-    const minuteString = this.date.substring(10, 12);
-    const secondString = this.date.substring(12);
+    const yearString = this._date.substring(0, 4);
+    const monthString = this._date.substring(4, 6);
+    const dayString = this._date.substring(6, 8);
+    const hourString = this._date.substring(8, 10);
+    const minuteString = this._date.substring(10, 12);
+    const secondString = this._date.substring(12, 14);
     // YYYY-MM-DD - HH:mm:ss
-    return `${yearString}-${monthString}-${dayString} - ${hourString}:${minuteString}:${secondString}`;
+    if (!this.containsMs()) {
+      return `${yearString}-${monthString}-${dayString} - ${hourString}:${minuteString}:${secondString}`;
+    }
+    // YYYY-MM-DD - HH:mm:ss.SSS
+    const milliSecondString = this._date.substring(15);
+    return `${yearString}-${monthString}-${dayString} - ${hourString}:${minuteString}:${secondString}.${milliSecondString}`;
   }
   public toLuxon(): DateTime {
     return DateTime.fromISO(this.toISOString()).toUTC();
@@ -268,19 +306,21 @@ export class CompactDate {
     return new Date(this.toTimestamp());
   }
   public toTimestamp(): number {
-    const yearString = +this.date.substring(0, 4);
-    const monthString = +this.date.substring(4, 6) - 1;
-    const dayString = +this.date.substring(6, 8);
-    const hourString = +this.date.substring(8, 10);
-    const minuteString = +this.date.substring(10, 12);
-    const secondString = +this.date.substring(12);
+    const yearString = +this._date.substring(0, 4);
+    const monthString = +this._date.substring(4, 6) - 1;
+    const dayString = +this._date.substring(6, 8);
+    const hourString = +this._date.substring(8, 10);
+    const minuteString = +this._date.substring(10, 12);
+    const secondString = +this._date.substring(12, 14);
+    const millisecondString = +this._date.substring(15);
     return Date.UTC(
       yearString,
       monthString,
       dayString,
       hourString,
       minuteString,
-      secondString
+      secondString,
+      millisecondString,
     );
   }
 
@@ -288,11 +328,13 @@ export class CompactDate {
   public startOf(unit: TimeUnitStartOf): CompactDate {
     switch (unit) {
       case "year":
-        return new CompactDate(this.date.substring(0, 4).concat("0101000000"));
+        return new CompactDate(this._date.substring(0, 4).concat("0101000000"));
       case "month":
-        return new CompactDate(this.date.substring(0, 6).concat("01000000"));
+        return new CompactDate(this._date.substring(0, 6).concat("01000000"));
       case "day":
-        return new CompactDate(this.date.substring(0, 8).concat("000000"));
+        return new CompactDate(this._date.substring(0, 8).concat("000000"));
+      case "minute":
+        return new CompactDate(this._date.substring(0, 12).concat("00"));
     }
   }
 
@@ -301,7 +343,10 @@ export class CompactDate {
       return this;
     }
     // On simple units, use native JS Date for faster computation
-    if (unit === "seconds") {
+    if (unit === "milliseconds") {
+      const newTimestamp = this.toTimestamp() + value;
+      return convertDateToCompactDate(new Date(newTimestamp));
+    } else if (unit === "seconds") {
       const newTimestamp = this.toTimestamp() + value * 1000;
       return convertDateToCompactDate(new Date(newTimestamp));
     }
@@ -318,7 +363,9 @@ export class CompactDate {
   // Date comparison
   public diff(toCompare: CompactDate, unit: TimeUnitBase = "seconds"): number {
     // On simple units, use native JS Date for faster computation
-    if (unit === "seconds") {
+    if (unit === "milliseconds") {
+      return this.toTimestamp() - toCompare.toTimestamp();
+    } else if (unit === "seconds") {
       return (this.toTimestamp() - toCompare.toTimestamp()) / 1000;
     } else if (unit === "minutes") {
       return (this.toTimestamp() - toCompare.toTimestamp()) / 60_000;
@@ -337,5 +384,13 @@ export class CompactDate {
     const filteredUnits = ALL_UNITS_ORDERED.slice(unitIndex);
     const duration = firstDate.diff(secondDate, filteredUnits);
     return duration.toObject()[unit] ?? 0;
+  }
+
+  public toJSON(): string {
+    return this.date;
+  }
+
+  private containsMs(): boolean {
+    return this.millisecond() > 0;
   }
 }

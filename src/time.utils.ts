@@ -1,11 +1,12 @@
-import * as moment from 'moment';
-import { Moment, MomentInput } from 'moment';
-
+import * as moment from "moment";
+import { Moment, MomentInput } from "moment";
 
 /**
  * Date format used internally for operations
  */
-export const CompactFormat = 'YYYYMMDDHHmmss';
+export const CompactFormat = "YYYYMMDDHHmmss";
+export const CompactFormatMs = "YYYYMMDDHHmmss.SSS";
+export const EMPTY_MS = "000";
 
 /**
  * Method to get a string of timestamp (utc) in format 'YYYYMMDDHHmmss'.
