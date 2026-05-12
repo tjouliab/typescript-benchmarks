@@ -1,10 +1,18 @@
 import { DateTime } from "luxon";
 import { CompactDate } from "./compact-date";
-import { CompactFormat, convertUTCToString } from "./time.utils";
+import {
+  convertUTCToString,
+  convertStringToUTC,
+  CompactFormat,
+  CompactFormatMs,
+  EMPTY_MS,
+} from "./time.utils";
+import { CompactDateRange } from "./compact-date-range";
+import { DateRange } from "moment-range";
 
 /**
  * This function convert ISO formatted string "YYYY-MM-DDTHH:mm:ssZ" or "YYYY-MM-DDTHH:mm:ss.000Z"
- * to compact formatted string {@link CompactFormat}.
+ * to compact formatted string {@link CompactFormat} or {@link CompactFormatMs}.
  * Please note that this function must take UTC string in input and will return UTC.
  * This behavior is intended, as it permits to have the less compute intensivity possible.
  */
@@ -12,15 +20,25 @@ export function convertIsoToCompact(iso: string): string {
   if (iso == null) {
     throw new Error(`ISO date is not defined: ${iso}`);
   }
-  return `${iso.substring(0, 4)}${iso.substring(5, 7)}${iso.substring(
-    8,
-    10
-  )}${iso.substring(11, 13)}${iso.substring(14, 16)}${iso.substring(17, 19)}`;
+
+  const year = iso.substring(0, 4);
+  const month = iso.substring(5, 7);
+  const day = iso.substring(8, 10);
+  const hours = iso.substring(11, 13);
+  const minutes = iso.substring(14, 16);
+  const seconds = iso.substring(17, 19);
+  const milliSeconds = iso.substring(20, 23) || EMPTY_MS;
+  if (milliSeconds === EMPTY_MS || Number.isNaN(+milliSeconds)) {
+    // YYYYMMDDHHmmss
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+  }
+  // YYYYMMDDHHmmss.SSS
+  return `${year}${month}${day}${hours}${minutes}${seconds}.${milliSeconds}`;
 }
 
 /**
  * This function convert ISO formatted string "YYYY-MM-DDTHH:mm:ssZ" or "YYYY-MM-DDTHH:mm:ss.000Z"
- * to CompactDate {@link CompactFormat}.
+ * to CompactDate {@link CompactFormat} or {@link CompactFormatMs}.
  * Please note that this function must take UTC string in input and will return UTC.
  * This behavior is intended, as it permits to have the less compute intensivity possible.
  */
@@ -32,34 +50,40 @@ export function convertIsoToCompactDate(iso: string): CompactDate {
 }
 
 export function convertCompactToIso(date: string): string {
-  if (date.length !== CompactFormat.length) {
-    return date;
-  }
+  if (!CompactDate.validateFormat(date)) return date;
+
   const yearString = date.substring(0, 4);
   const monthString = date.substring(4, 6);
   const dayString = date.substring(6, 8);
   const hourString = date.substring(8, 10);
   const minuteString = date.substring(10, 12);
-  const secondString = date.substring(12);
-  // YYYY-MM-DDTHH:mm:ss.000Z
-  return `${yearString}-${monthString}-${dayString}T${hourString}:${minuteString}:${secondString}.000Z`;
+  const secondString = date.substring(12, 14);
+  const milliSecondString = date.substring(15) || EMPTY_MS;
+  // YYYY-MM-DDTHH:mm:ss.SSSZ
+  return `${yearString}-${monthString}-${dayString}T${hourString}:${minuteString}:${secondString}.${milliSecondString}Z`;
 }
 
 /**
- * ISO display format is YYYY-MM-DD HH:mm:ss
+ * ISO display format is YYYY-MM-DD HH:mm:ss or YYYY-MM-DD HH:mm:ss.SSS
  */
 export function convertCompactToIsoDisplay(date: string): string {
-  if (date.length !== CompactFormat.length) {
+  if (![CompactFormat.length, CompactFormatMs.length].includes(date.length))
     return date;
-  }
+
   const yearString = date.substring(0, 4);
   const monthString = date.substring(4, 6);
   const dayString = date.substring(6, 8);
   const hourString = date.substring(8, 10);
   const minuteString = date.substring(10, 12);
-  const secondString = date.substring(12);
-  // YYYY-MM-DD HH:mm:ss
-  return `${yearString}-${monthString}-${dayString} ${hourString}:${minuteString}:${secondString}`;
+  const secondString = date.substring(12, 14);
+  const millisecondString = date.substring(15, 18) || EMPTY_MS;
+
+  if (millisecondString === EMPTY_MS) {
+    // YYYY-MM-DD HH:mm:ss
+    return `${yearString}-${monthString}-${dayString} ${hourString}:${minuteString}:${secondString}`;
+  }
+  // YYYY-MM-DD HH:mm:ss.SSS
+  return `${yearString}-${monthString}-${dayString} ${hourString}:${minuteString}:${secondString}.${millisecondString}`;
 }
 
 export function convertLuxonToCompactDate(date: DateTime): CompactDate {
@@ -73,28 +97,60 @@ export function convertMomentToCompactDate(date: moment.Moment): CompactDate {
 // This way of coding is used because it is faster than the usual `date.toIsoString()`
 export function convertDateToCompactDate(date: Date): CompactDate {
   try {
-    const newDate = date instanceof Date ? date : new Date(date);
+    const newDate = new Date(date);
+    const year = newDate.getUTCFullYear().toString();
+    const month = (newDate.getUTCMonth() + 1).toString().padStart(2, "0");
+    const day = newDate.getUTCDate().toString().padStart(2, "0");
+    const hours = newDate.getUTCHours().toString().padStart(2, "0");
+    const minutes = newDate.getUTCMinutes().toString().padStart(2, "0");
+    const seconds = newDate.getUTCSeconds().toString().padStart(2, "0");
+    const milliSeconds = newDate.getMilliseconds().toString().padStart(3, "0");
 
-    const year = newDate.getUTCFullYear();
-    const month = newDate.getUTCMonth() + 1;
-    const day = newDate.getUTCDate();
-    const hours = newDate.getUTCHours();
-    const minutes = newDate.getUTCMinutes();
-    const seconds = newDate.getUTCSeconds();
-
-    // Custom padding is faster that .padStart
-    const compactDate =
-      String(year) +
-      (month < 10 ? "0" + month : String(month)) +
-      (day < 10 ? "0" + day : String(day)) +
-      (hours < 10 ? "0" + hours : String(hours)) +
-      (minutes < 10 ? "0" + minutes : String(minutes)) +
-      (seconds < 10 ? "0" + seconds : String(seconds));
-
+    const compactDate = `${year}${month}${day}${hours}${minutes}${seconds}.${milliSeconds}`;
     return new CompactDate(compactDate);
   } catch (e) {
     throw new Error(
-      `Error converting date to compact date ${date?.toString()} ${e}`
+      `Error converting date to compact date ${date?.toString()} ${e}`,
     );
   }
+}
+
+export function compactDateRangeToDateRange(
+  compactDateRangeArray: CompactDateRange[],
+): DateRange[] {
+  const dateRangeArray: DateRange[] = [];
+  for (const compactDate of compactDateRangeArray) {
+    dateRangeArray.push(
+      new DateRange(
+        convertStringToUTC(compactDate.start.date),
+        convertStringToUTC(compactDate.end.date),
+      ),
+    );
+  }
+  return dateRangeArray;
+}
+
+export function dateRangetoCompactDateRange(
+  dateRangeArray: DateRange[],
+): CompactDateRange[] {
+  const compactDateRange: CompactDateRange[] = [];
+  for (const dateRange of dateRangeArray) {
+    compactDateRange.push(
+      new CompactDateRange(
+        convertMomentToCompactDate(dateRange.start),
+        convertMomentToCompactDate(dateRange.end),
+      ),
+    );
+  }
+  return compactDateRange;
+}
+
+export function isoStringToCompactDateRange(
+  start: string,
+  end: string,
+): CompactDateRange {
+  return new CompactDateRange(
+    new CompactDate(convertIsoToCompact(start)),
+    new CompactDate(convertIsoToCompact(end)),
+  );
 }

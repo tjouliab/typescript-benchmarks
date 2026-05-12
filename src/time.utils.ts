@@ -13,7 +13,9 @@ export const EMPTY_MS = "000";
  * @param {*} timestamp moment object
  */
 export const convertUTCToString = (timestamp: Moment) => {
-  if (!timestamp) return undefined;
+  if (timestamp.millisecond() > 0) {
+    return timestamp.utc().format(CompactFormatMs);
+  }
   return timestamp.utc().format(CompactFormat);
 };
 
@@ -24,6 +26,9 @@ export const convertUTCToString = (timestamp: Moment) => {
  * return a formatted timestamp
  */
 export function convertStringToUTC(timestamp: MomentInput): moment.Moment {
+  if (String(timestamp).length === CompactFormatMs.length) {
+    return moment.utc(timestamp, CompactFormatMs);
+  }
   return moment.utc(timestamp, CompactFormat);
 }
 
@@ -32,5 +37,8 @@ export function convertStringToUTC(timestamp: MomentInput): moment.Moment {
  * @param timestamp The date to convert
  */
 export const formatToCompact = (timestamp: Moment) => {
+  if (timestamp.milliseconds() !== 0) {
+    return timestamp.format(CompactFormatMs);
+  }
   return timestamp.format(CompactFormat);
 };

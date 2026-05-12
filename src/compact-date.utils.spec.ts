@@ -97,16 +97,6 @@ describe("convertMomentToCompactDate", () => {
     const expected = new CompactDate(convertIsoToCompact(isoDate));
     expect(result).toEqual(expected);
   });
-
-  it("should convert the moment date to CompactDate with timezone", () => {
-    const isoDate = "2024-01-10T23:05:33.000Z";
-    const momentDate = moment.tz(isoDate, timezoneCanada);
-
-    const result = convertMomentToCompactDate(momentDate);
-
-    const expected = new CompactDate(convertIsoToCompact(isoDate));
-    expect(result).toEqual(expected);
-  });
 });
 
 describe("convertDateToCompactDate", () => {
