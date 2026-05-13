@@ -1,14 +1,14 @@
 import { DateTime } from "luxon";
+import { DateRange } from "moment-range";
 import { CompactDate } from "./compact-date";
+import { CompactDateRange } from "./compact-date-range";
 import {
-  convertUTCToString,
-  convertStringToUTC,
   CompactFormat,
   CompactFormatMs,
+  convertStringToUTC,
+  convertUTCToString,
   EMPTY_MS,
 } from "./time.utils";
-import { CompactDateRange } from "./compact-date-range";
-import { DateRange } from "moment-range";
 
 /**
  * This function convert ISO formatted string "YYYY-MM-DDTHH:mm:ssZ" or "YYYY-MM-DDTHH:mm:ss.000Z"
@@ -97,14 +97,13 @@ export function convertMomentToCompactDate(date: moment.Moment): CompactDate {
 // This way of coding is used because it is faster than the usual `date.toIsoString()`
 export function convertDateToCompactDate(date: Date): CompactDate {
   try {
-    const newDate = new Date(date);
-    const year = newDate.getUTCFullYear().toString();
-    const month = (newDate.getUTCMonth() + 1).toString().padStart(2, "0");
-    const day = newDate.getUTCDate().toString().padStart(2, "0");
-    const hours = newDate.getUTCHours().toString().padStart(2, "0");
-    const minutes = newDate.getUTCMinutes().toString().padStart(2, "0");
-    const seconds = newDate.getUTCSeconds().toString().padStart(2, "0");
-    const milliSeconds = newDate.getMilliseconds().toString().padStart(3, "0");
+    const year = date.getUTCFullYear().toString();
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+    const day = date.getUTCDate().toString().padStart(2, "0");
+    const hours = date.getUTCHours().toString().padStart(2, "0");
+    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+    const seconds = date.getUTCSeconds().toString().padStart(2, "0");
+    const milliSeconds = date.getMilliseconds().toString().padStart(3, "0");
 
     const compactDate = `${year}${month}${day}${hours}${minutes}${seconds}.${milliSeconds}`;
     return new CompactDate(compactDate);
@@ -113,6 +112,28 @@ export function convertDateToCompactDate(date: Date): CompactDate {
       `Error converting date to compact date ${date?.toString()} ${e}`,
     );
   }
+}
+
+export function convertInstantToCompactDate(
+  instant: Temporal.Instant,
+): CompactDate {
+  return convertIsoToCompactDate(instant.toString());
+}
+
+export function convertDateTimeToCompactDate(
+  dateTime: Temporal.PlainDateTime,
+): CompactDate {
+  const year = dateTime.year.toString();
+  const month = dateTime.month.toString().padStart(2, "0");
+  const day = dateTime.day.toString().padStart(2, "0");
+  const hours = dateTime.hour.toString().padStart(2, "0");
+  const minutes = dateTime.minute.toString().padStart(2, "0");
+  const seconds = dateTime.second.toString().padStart(2, "0");
+  const milliSeconds = dateTime.millisecond.toString().padStart(3, "0");
+
+  const compactDate = `${year}${month}${day}${hours}${minutes}${seconds}.${milliSeconds}`;
+
+  return new CompactDate(compactDate);
 }
 
 export function compactDateRangeToDateRange(
