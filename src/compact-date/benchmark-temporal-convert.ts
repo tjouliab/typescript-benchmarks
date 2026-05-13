@@ -1,8 +1,6 @@
 import * as Benchmark from "benchmark";
 import { CompactDate } from "../compact-date";
 
-const instant = Temporal.Now.instant();
-const plainDateTime = Temporal.Now.plainDateTimeISO();
 const compactDate = CompactDate.now(true);
 
 // Create a new benchmark suite
@@ -16,10 +14,34 @@ function convertCompactToInstantMillis(date: CompactDate): Temporal.Instant {
   return Temporal.Instant.fromEpochMilliseconds(date.toTimestamp());
 }
 
-function convertCompactToDateTimeIso(
+function convertCompactToDateTimeIsoDisplay(
   date: CompactDate,
 ): Temporal.PlainDateTime {
-  return Temporal.PlainDateTime.from(date.toISOString());
+  return Temporal.PlainDateTime.from(date.toISODisplay());
+}
+
+function convertCompactToDateTimeFrom(
+  date: CompactDate,
+): Temporal.PlainDateTime {
+  const dateString = date.date;
+
+  const year = +dateString.substring(0, 4);
+  const month = +dateString.substring(4, 6) - 1;
+  const day = +dateString.substring(6, 8);
+  const hour = +dateString.substring(8, 10);
+  const minute = +dateString.substring(10, 12);
+  const second = +dateString.substring(12, 14);
+  const millisecond = +dateString.substring(15);
+
+  return Temporal.PlainDateTime.from({
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  });
 }
 
 function convertCompactToDateTimeConstructor(
@@ -54,7 +76,10 @@ suite
     convertCompactToInstantMillis(compactDate);
   })
   .add(`convertCompactToDateTimeIso`, () => {
-    convertCompactToDateTimeIso(compactDate);
+    convertCompactToDateTimeIsoDisplay(compactDate);
+  })
+  .add(`convertCompactToDateTimeFrom`, () => {
+    convertCompactToDateTimeFrom(compactDate);
   })
   .add(`convertCompactToDateTimeConstructor`, () => {
     convertCompactToDateTimeConstructor(compactDate);
