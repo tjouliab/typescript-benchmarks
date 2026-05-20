@@ -393,19 +393,13 @@ export class CompactDate {
       return (this.toTimestamp() - toCompare.toTimestamp()) / 60_000;
     }
 
-    // On complex units, use Luxon to ensure accuracy
-    const firstDate = this.toLuxon();
-    const secondDate = toCompare.toLuxon();
+    // On complex units, use Temporal to ensure accuracy
+    const firstDate = this.toInstant();
+    const secondDate = toCompare.toInstant();
 
-    const unitIndex = ALL_UNITS_ORDERED.findIndex((elem) => elem === unit);
-    if (unitIndex < 0) {
-      throw new Error(`Time unit ${unit} is not supported`);
-    }
+    const duration = firstDate.since(secondDate);
 
-    // Filtered units allow Luxon to accurately return the duration in requested unit
-    const filteredUnits = ALL_UNITS_ORDERED.slice(unitIndex);
-    const duration = firstDate.diff(secondDate, filteredUnits);
-    return duration.toObject()[unit] ?? 0;
+    return duration.total({ unit });
   }
 
   public toJSON(): string {
