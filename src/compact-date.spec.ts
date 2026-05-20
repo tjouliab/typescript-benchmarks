@@ -1,6 +1,8 @@
 import * as moment from "moment";
 import { convertStringToUTC } from "./time.utils";
 import { CompactDate } from "./compact-date";
+import { DateRange } from "moment-range";
+import { isoStringToCompactDateRange } from "./compact-date.utils";
 
 describe("constructor", () => {
   it("should handle CompactFormat", () => {
@@ -43,6 +45,40 @@ describe("get", () => {
     const date = "20241114230533.123";
     const dateCompact = new CompactDate(date);
     expect(dateCompact.date).toEqual(date);
+  });
+});
+
+describe("toDateRange", () => {
+  it("should convert compact date range to date range", () => {
+    // Arrange
+    const start = "2020-01-02T00:00:00.000Z";
+    const end = "2020-01-03T00:00:00.000Z";
+
+    const compactDateRange = isoStringToCompactDateRange(start, end);
+
+    const expected = new DateRange(moment.utc(start), moment.utc(end));
+
+    // Act
+    const actual = compactDateRange.toDateRange();
+
+    // Assert
+    expect(actual).toEqual(expected);
+  });
+
+  it("should convert compact format to utc moment object with ms", () => {
+    // Arrange
+    const start = "2020-01-02T00:00:00.123Z";
+    const end = "2020-01-03T00:00:00.321Z";
+
+    const compactDateRange = isoStringToCompactDateRange(start, end);
+
+    const expected = new DateRange(moment.utc(start), moment.utc(end));
+
+    // Act
+    const actual = compactDateRange.toDateRange();
+
+    // Assert
+    expect(actual).toEqual(expected);
   });
 });
 
@@ -130,10 +166,17 @@ describe("validateFormat", () => {
 });
 
 describe("now", () => {
+  const isoDates = [
+    "2026-04-20T10:15:30.123Z",
+    "2026-04-20T10:15:30.023Z",
+    "2026-04-20T10:15:30.003Z",
+    "2026-04-20T10:15:30.000Z",
+    "2026-04-20T10:15:30Z",
+  ];
+
   beforeEach(() => {
     // Make sure "now" methods are synchronised to the millisecond
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("2026-04-20T10:15:30.123Z"));
   });
 
   afterEach(() => {
@@ -141,7 +184,8 @@ describe("now", () => {
     jest.useRealTimers();
   });
 
-  it("should return current date", () => {
+  it.each(isoDates)("should return current date for %s", (isoDate) => {
+    jest.setSystemTime(new Date(isoDate));
     const result = CompactDate.now().toISOString();
 
     const dateNow = new Date();
@@ -150,7 +194,8 @@ describe("now", () => {
     expect(result).toEqual(dateNow.toISOString());
   });
 
-  it("should return current date with ms", () => {
+  it.each(isoDates)("should return current date with ms for %s", (isoDate) => {
+    jest.setSystemTime(new Date(isoDate));
     const result = CompactDate.now(true).toISOString();
 
     const dateNow = new Date();
