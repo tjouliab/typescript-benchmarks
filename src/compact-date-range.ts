@@ -1,10 +1,9 @@
-import { Duration } from "luxon";
+import { DateRange } from "moment-range";
 import { CompactDate, TimeUnitBase } from "./compact-date";
 import {
   convertDateToCompactDate,
-  convertLuxonToCompactDate,
+  convertInstantToCompactDate,
 } from "./compact-date.utils";
-import { DateRange } from "moment-range";
 
 /**
  * A class representing a date range optimized for performance by mimicking the behavior of Moment's DateRange.
@@ -153,15 +152,15 @@ export class CompactDateRange {
     unit: Exclude<TimeUnitBase, "minutes" | "seconds">,
     step: number,
   ): CompactDate[] {
-    const endLuxon = this.end.toLuxon();
-    let currentDate = this.start.toLuxon();
+    const endInstant = this.end.toInstant();
+    let currentDate = this.start.toInstant();
 
-    const duration = Duration.fromObject({ [unit]: step });
+    const duration = Temporal.Duration.from({ [unit]: step });
 
     const dates: CompactDate[] = [];
-    while (currentDate <= endLuxon) {
-      dates.push(convertLuxonToCompactDate(currentDate)); // Add current date to the array
-      currentDate = currentDate.plus(duration); // Increment by the specified step and unit
+    while (Temporal.Instant.compare(currentDate, endInstant) <= 0) {
+      dates.push(convertInstantToCompactDate(currentDate)); // Add current date to the array
+      currentDate = currentDate.add(duration); // Increment by the specified step and unit
     }
 
     return dates;
@@ -174,7 +173,9 @@ export class CompactDateRange {
     const endTimestamp = this.end.toTimestamp();
     let currentTimestamp = this.start.toTimestamp();
 
-    const durationMs = Duration.fromObject({ [unit]: step }).toMillis();
+    const durationMs = Temporal.Duration.from({ [unit]: step }).total({
+      unit: "milliseconds",
+    });
 
     const dates: CompactDate[] = [];
     while (currentTimestamp <= endTimestamp) {
