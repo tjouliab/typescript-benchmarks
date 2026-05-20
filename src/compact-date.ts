@@ -1,16 +1,16 @@
 import { DateTime } from "luxon";
 import {
+  convertCompactToIso,
+  convertCompactToIsoDisplay,
+  convertDateTimeToCompactDate,
+  convertDateToCompactDate,
+} from "./compact-date.utils";
+import {
   CompactFormat,
   CompactFormatMs,
   convertStringToUTC,
   EMPTY_MS,
 } from "./time.utils";
-import {
-  convertCompactToIso,
-  convertCompactToIsoDisplay,
-  convertDateToCompactDate,
-  convertLuxonToCompactDate,
-} from "./compact-date.utils";
 
 export type TimeUnitBase =
   | "years"
@@ -297,7 +297,26 @@ export class CompactDate {
     return `${yearString}-${monthString}-${dayString} - ${hourString}:${minuteString}:${secondString}.${milliSecondString}`;
   }
   public toInstant(): Temporal.Instant {
-    return Temporal.Instant.from(this.toISOString());
+    return Temporal.Instant.fromEpochMilliseconds(this.toTimestamp());
+  }
+  public toPlainDateTime(): Temporal.PlainDateTime {
+    const year = this.year();
+    const month = this.month();
+    const day = this.day();
+    const hour = this.hour();
+    const minute = this.minute();
+    const second = this.second();
+    const millisecond = this.millisecond();
+
+    return new Temporal.PlainDateTime(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      millisecond,
+    );
   }
   public toLuxon(): DateTime {
     return DateTime.fromISO(this.toISOString()).toUTC();
@@ -354,9 +373,9 @@ export class CompactDate {
       return convertDateToCompactDate(new Date(newTimestamp));
     }
 
-    // On complex units, use Luxon to ensure accuracy
-    const date = this.toLuxon().plus({ [unit]: value });
-    return convertLuxonToCompactDate(date);
+    // On complex units, use Temporal to ensure accuracy
+    const plainDateTime = this.toPlainDateTime().add({ [unit]: value });
+    return convertDateTimeToCompactDate(plainDateTime);
   }
 
   public subtract(value: number, unit: TimeUnitBase): CompactDate {

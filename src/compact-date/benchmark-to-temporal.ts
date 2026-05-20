@@ -44,6 +44,28 @@ function convertCompactToDateTimeFrom(
   });
 }
 
+function convertCompactToDateTimeFromExplicit(
+  date: CompactDate,
+): Temporal.PlainDateTime {
+  const year = date.year();
+  const month = date.month();
+  const day = date.day();
+  const hour = date.hour();
+  const minute = date.minute();
+  const second = date.second();
+  const millisecond = date.millisecond();
+
+  return Temporal.PlainDateTime.from({
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  });
+}
+
 function convertCompactToDateTimeConstructor(
   date: CompactDate,
 ): Temporal.PlainDateTime {
@@ -56,6 +78,28 @@ function convertCompactToDateTimeConstructor(
   const minute = +dateString.substring(10, 12);
   const second = +dateString.substring(12, 14);
   const millisecond = +dateString.substring(15);
+
+  return new Temporal.PlainDateTime(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  );
+}
+
+function convertCompactToDateTimeConstructorExplicit(
+  date: CompactDate,
+): Temporal.PlainDateTime {
+  const year = date.year();
+  const month = date.month();
+  const day = date.day();
+  const hour = date.hour();
+  const minute = date.minute();
+  const second = date.second();
+  const millisecond = date.millisecond();
 
   return new Temporal.PlainDateTime(
     year,
@@ -81,8 +125,14 @@ suite
   .add(`convertCompactToDateTimeFrom`, () => {
     convertCompactToDateTimeFrom(compactDate);
   })
+  .add(`convertCompactToDateTimeFromExplicit`, () => {
+    convertCompactToDateTimeFromExplicit(compactDate);
+  })
   .add(`convertCompactToDateTimeConstructor`, () => {
     convertCompactToDateTimeConstructor(compactDate);
+  })
+  .add(`convertCompactToDateTimeConstructorExplicit`, () => {
+    convertCompactToDateTimeConstructorExplicit(compactDate);
   })
 
   .add(`toLuxon`, () => {
