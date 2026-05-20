@@ -1,6 +1,6 @@
 import * as moment from "moment";
-import { convertStringToUTC } from "./time.utils";
 import { CompactDate } from "./compact-date";
+import { convertStringToUTC } from "./time.utils";
 
 describe("constructor", () => {
   it("should handle CompactFormat", () => {
@@ -1005,10 +1005,33 @@ describe("toHumanFriendlyFormat", () => {
   });
 });
 
+describe("toPlainDateTime", () => {
+  it("should return the date well formatted", () => {
+    const date = new CompactDate("20240110230533");
+    const result = date
+      .toPlainDateTime()
+      .toString({ fractionalSecondDigits: 3 });
+
+    const dateMoment = convertStringToUTC("20240110230533");
+    const expected = dateMoment.toISOString();
+
+    expect(`${result}Z`).toEqual(expected);
+  });
+  it("should return the date well formatted with ms", () => {
+    const date = new CompactDate("20240110230533.123");
+    const result = date.toPlainDateTime().toString();
+
+    const dateMoment = convertStringToUTC("20240110230533.123");
+    const expected = dateMoment.toISOString();
+
+    expect(`${result}Z`).toEqual(expected);
+  });
+});
+
 describe("toInstant", () => {
   it("should return the date well formatted", () => {
     const date = new CompactDate("20240110230533");
-    const result = date.toInstant().toString();
+    const result = date.toInstant().toString({ fractionalSecondDigits: 3 });
 
     const dateMoment = convertStringToUTC("20240110230533");
     const expected = dateMoment.toISOString();

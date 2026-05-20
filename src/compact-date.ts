@@ -301,7 +301,7 @@ export class CompactDate {
   }
   public toPlainDateTime(): Temporal.PlainDateTime {
     const year = this.year();
-    const month = this.month();
+    const month = this.month() + 1;
     const day = this.day();
     const hour = this.hour();
     const minute = this.minute();
@@ -391,15 +391,29 @@ export class CompactDate {
       return (this.toTimestamp() - toCompare.toTimestamp()) / 1000;
     } else if (unit === "minutes") {
       return (this.toTimestamp() - toCompare.toTimestamp()) / 60_000;
+    } else if (unit === "hours" || unit === "days") {
+      // On complex units, use Temporal to ensure accuracy
+      const firstDate = this.toInstant();
+      const secondDate = toCompare.toInstant();
+
+      const duration = firstDate.since(secondDate);
+
+      return Math.trunc(duration.total({ unit }));
     }
 
-    // On complex units, use Temporal to ensure accuracy
-    const firstDate = this.toInstant();
-    const secondDate = toCompare.toInstant();
+    // On complex units, use Luxon to ensure accuracy
+    const firstDate = this.toLuxon();
+    const secondDate = toCompare.toLuxon();
 
-    const duration = firstDate.since(secondDate);
+    const unitIndex = ALL_UNITS_ORDERED.indexOf(unit);
+    if (unitIndex < 0) {
+      throw new Error(`Time unit ${unit} is not supported`);
+    }
 
-    return duration.total({ unit });
+    // Filtered units allow Luxon to accurately return the duration in requested unit
+    const filteredUnits = ALL_UNITS_ORDERED.slice(unitIndex);
+    const duration = firstDate.diff(secondDate, filteredUnits);
+    return duration.toObject()[unit] ?? 0;
   }
 
   public toJSON(): string {
