@@ -1,6 +1,6 @@
 import * as moment from "moment";
-import { CompactDate } from "./compact-date";
 import { DateRange } from "moment-range";
+import { CompactDate } from "./compact-date";
 import { isoStringToCompactDateRange } from "./compact-date.utils";
 import { convertStringToUTC } from "./time.utils";
 
@@ -62,7 +62,7 @@ describe("toDateRange", () => {
     const actual = compactDateRange.toDateRange();
 
     // Assert
-    expect(actual.toString()).toEqual(expected.toString());
+    expect(actual).toEqual(expected);
   });
 
   it("should convert compact format to utc moment object with ms", () => {
@@ -78,7 +78,7 @@ describe("toDateRange", () => {
     const actual = compactDateRange.toDateRange();
 
     // Assert
-    expect(actual.toString()).toEqual(expected.toString());
+    expect(actual).toEqual(expected);
   });
 });
 
