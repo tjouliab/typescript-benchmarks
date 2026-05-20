@@ -4,6 +4,7 @@ import {
   convertDateToCompactDate,
   convertLuxonToCompactDate,
 } from "./compact-date.utils";
+import { DateRange } from "moment-range";
 
 /**
  * A class representing a date range optimized for performance by mimicking the behavior of Moment's DateRange.
@@ -49,30 +50,63 @@ export class CompactDateRange {
     this._end = end;
   }
 
+  public clone(): CompactDateRange {
+    return new CompactDateRange(this.start.clone(), this.end.clone());
+  }
+
+  public toDateRange(): DateRange {
+    return new DateRange(this.start.toMoment(), this.end.toMoment());
+  }
+
+  /**
+   * Determines whether the current date range contains a given date or date range.
+   * By default, the *exclude* settings are set to `false`
+   *
+   * @param toCompare - The date or date range to compare against the current range.
+   * @param options - Optional settings to exclude the start or end of the range during comparison.
+   *
+   * @returns `true` if the current range contains the given date or date range, `false` otherwise.
+   */
   public contains(
-    toCompare: CompactDate,
-    options?: { excludeStart?: boolean; excludeEnd?: boolean }
+    toCompare: CompactDate | CompactDateRange,
+    options?: { excludeStart?: boolean; excludeEnd?: boolean },
   ): boolean {
+    // Check that current range contains a single date
     let isAfterStart: boolean;
-    if (options?.excludeStart) {
-      isAfterStart = toCompare.isAfter(this.start);
-    } else {
-      isAfterStart = toCompare.isSameOrAfter(this.start);
-    }
-
     let isBeforeEnd: boolean;
-    if (options?.excludeEnd) {
-      isBeforeEnd = toCompare.isBefore(this.end);
-    } else {
-      isBeforeEnd = toCompare.isSameOrBefore(this.end);
-    }
 
+    if (toCompare instanceof CompactDate) {
+      if (options?.excludeStart) {
+        isAfterStart = toCompare.isAfter(this.start);
+      } else {
+        isAfterStart = toCompare.isSameOrAfter(this.start);
+      }
+
+      if (options?.excludeEnd) {
+        isBeforeEnd = toCompare.isBefore(this.end);
+      } else {
+        isBeforeEnd = toCompare.isSameOrBefore(this.end);
+      }
+    } else {
+      // Check that current range contains an other range
+      if (options?.excludeStart) {
+        isAfterStart = toCompare.start.isAfter(this.start);
+      } else {
+        isAfterStart = toCompare.start.isSameOrAfter(this.start);
+      }
+
+      if (options?.excludeEnd) {
+        isBeforeEnd = toCompare.end.isBefore(this.end);
+      } else {
+        isBeforeEnd = toCompare.end.isSameOrBefore(this.end);
+      }
+    }
     return isAfterStart && isBeforeEnd;
   }
 
   public overlaps(
     other: CompactDateRange,
-    options?: { adjacent?: boolean }
+    options?: { adjacent?: boolean },
   ): boolean {
     const isAdjacent = options?.adjacent ?? false;
 
@@ -110,32 +144,14 @@ export class CompactDateRange {
   public by(unit: TimeUnitBase, options?: { step?: number }): CompactDate[] {
     const step = options?.step ?? 1;
     if (unit === "seconds" || unit === "minutes") {
-      return this.bySecondsMinutes(unit, step); // Use this for faster computation
+      return this.bySecondsMinutes(unit, step); // Optimized for seconds and minutes
     }
-    return this.byGeneric(unit, step);
-  }
-
-  private bySecondsMinutes(
-    unit: "minutes" | "seconds",
-    step: number
-  ): CompactDate[] {
-    const endTimestamp = this.end.toTimestamp();
-    let currentTimestamp = this.start.toTimestamp();
-
-    const durationMs = Duration.fromObject({ [unit]: step }).toMillis();
-
-    const dates: CompactDate[] = [];
-    while (currentTimestamp <= endTimestamp) {
-      dates.push(convertDateToCompactDate(new Date(currentTimestamp))); // Add current date to the array
-      currentTimestamp += durationMs; // Increment by the specified step and unit
-    }
-
-    return dates;
+    return this.byGeneric(unit, step); // General case for other time units
   }
 
   private byGeneric(
     unit: Exclude<TimeUnitBase, "minutes" | "seconds">,
-    step: number
+    step: number,
   ): CompactDate[] {
     const endLuxon = this.end.toLuxon();
     let currentDate = this.start.toLuxon();
@@ -146,6 +162,24 @@ export class CompactDateRange {
     while (currentDate <= endLuxon) {
       dates.push(convertLuxonToCompactDate(currentDate)); // Add current date to the array
       currentDate = currentDate.plus(duration); // Increment by the specified step and unit
+    }
+
+    return dates;
+  }
+
+  private bySecondsMinutes(
+    unit: "minutes" | "seconds",
+    step: number,
+  ): CompactDate[] {
+    const endTimestamp = this.end.toTimestamp();
+    let currentTimestamp = this.start.toTimestamp();
+
+    const durationMs = Duration.fromObject({ [unit]: step }).toMillis();
+
+    const dates: CompactDate[] = [];
+    while (currentTimestamp <= endTimestamp) {
+      dates.push(convertDateToCompactDate(new Date(currentTimestamp))); // Add current date to the array
+      currentTimestamp += durationMs; // Increment by the specified step and unit
     }
 
     return dates;
