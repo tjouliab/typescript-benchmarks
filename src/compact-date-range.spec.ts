@@ -20,84 +20,204 @@ import { CompactDate } from "./compact-date";
 // });
 
 describe("contains", () => {
-  const compactStart = new CompactDate("20240405123625");
-  const compactEnd = new CompactDate("20240410123625");
-  const compactDateRange = new CompactDateRange(compactStart, compactEnd);
+  describe("CompactDate", () => {
+    const compactStart = new CompactDate("20240405123625");
+    const compactEnd = new CompactDate("20240410123625");
+    const compactDateRange = new CompactDateRange(compactStart, compactEnd);
 
-  const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
-  const momentEnd = moment.utc("2024-04-10T12:36:25.000Z");
-  const momentDateRange = new DateRange(momentStart, momentEnd);
+    const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
+    const momentEnd = moment.utc("2024-04-10T12:36:25.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
 
-  it("contains should return true if the date is within the range, inclusive of both start and end by default", () => {
-    const compactCompare = new CompactDate("20240407123625");
-    const momentCompare = moment.utc("2024-04-07T12:36:25.000Z");
-    expect(compactDateRange.contains(compactCompare)).toEqual(
-      momentDateRange.contains(momentCompare)
-    );
+    it("contains should return true if the date is within the range, inclusive of both start and end by default", () => {
+      const compactCompare = new CompactDate("20240407123625");
+      const momentCompare = moment.utc("2024-04-07T12:36:25.000Z");
+      expect(compactDateRange.contains(compactCompare)).toEqual(
+        momentDateRange.contains(momentCompare),
+      );
+    });
+
+    it("contains should return false if the date is before the range", () => {
+      const compactCompare = new CompactDate("20240403123625");
+      const momentCompare = moment.utc("2024-04-03T12:36:25.000Z");
+      expect(compactDateRange.contains(compactCompare)).toEqual(
+        momentDateRange.contains(momentCompare),
+      );
+    });
+
+    it("contains should return false if the date is after the range", () => {
+      const compactCompare = new CompactDate("20240411123625");
+      const momentCompare = moment.utc("2024-04-11T12:36:25.000Z");
+      expect(compactDateRange.contains(compactCompare)).toEqual(
+        momentDateRange.contains(momentCompare),
+      );
+    });
+
+    it("contains should return true if the date is exactly the start of the range and excludeStart is false", () => {
+      const compactCompare = new CompactDate("20240405123625");
+      const momentCompare = moment.utc("2024-04-05T12:36:25.000Z");
+      expect(compactDateRange.contains(compactCompare)).toEqual(
+        momentDateRange.contains(momentCompare),
+      );
+    });
+
+    it("contains should return false if the date is exactly the start of the range and excludeStart is true", () => {
+      const compactCompare = new CompactDate("20240405123625");
+      const momentCompare = moment.utc("2024-04-05T12:36:25.000Z");
+      expect(
+        compactDateRange.contains(compactCompare, { excludeStart: true }),
+      ).toEqual(
+        momentDateRange.contains(momentCompare, { excludeStart: true }),
+      );
+    });
+
+    it("contains should return true if the date is exactly the end of the range and excludeEnd is false", () => {
+      const compactCompare = new CompactDate("20240410123625");
+      const momentCompare = moment.utc("2024-04-10T12:36:25.000Z");
+      expect(compactDateRange.contains(compactCompare)).toEqual(
+        momentDateRange.contains(momentCompare),
+      );
+    });
+
+    it("contains should return false if the date is exactly the end of the range and excludeEnd is true", () => {
+      const compactCompare = new CompactDate("20240410123625");
+      const momentCompare = moment.utc("2024-04-10T12:36:25.000Z");
+      expect(
+        compactDateRange.contains(compactCompare, { excludeEnd: true }),
+      ).toEqual(momentDateRange.contains(momentCompare, { excludeEnd: true }));
+    });
+
+    it("contains should return true if the date is after the start and before the end, with excludeStart and excludeEnd true", () => {
+      const compactCompare = new CompactDate("20240407123625");
+      const momentCompare = moment.utc("2024-04-07T12:36:25.000Z");
+      expect(
+        compactDateRange.contains(compactCompare, {
+          excludeStart: true,
+          excludeEnd: true,
+        }),
+      ).toEqual(
+        momentDateRange.contains(momentCompare, {
+          excludeStart: true,
+          excludeEnd: true,
+        }),
+      );
+    });
   });
 
-  it("contains should return false if the date is before the range", () => {
-    const compactCompare = new CompactDate("20240403123625");
-    const momentCompare = moment.utc("2024-04-03T12:36:25.000Z");
-    expect(compactDateRange.contains(compactCompare)).toEqual(
-      momentDateRange.contains(momentCompare)
-    );
-  });
+  describe("CompactDateRange", () => {
+    const compactStart = new CompactDate("20240101050000");
+    const compactEnd = new CompactDate("20240101100000");
+    const compactDateRange = new CompactDateRange(compactStart, compactEnd);
 
-  it("contains should return false if the date is after the range", () => {
-    const compactCompare = new CompactDate("20240411123625");
-    const momentCompare = moment.utc("2024-04-11T12:36:25.000Z");
-    expect(compactDateRange.contains(compactCompare)).toEqual(
-      momentDateRange.contains(momentCompare)
-    );
-  });
+    const momentStart = moment.utc("2024-01-01T05:00:00.000Z");
+    const momentEnd = moment.utc("2024-01-01T10:00:00.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
 
-  it("contains should return true if the date is exactly the start of the range and excludeStart is false", () => {
-    const compactCompare = new CompactDate("20240405123625");
-    const momentCompare = moment.utc("2024-04-05T12:36:25.000Z");
-    expect(compactDateRange.contains(compactCompare)).toEqual(
-      momentDateRange.contains(momentCompare)
-    );
-  });
+    it("should return false if range is not contained on start", () => {
+      const compactCompareStart = new CompactDate("20240101040000");
+      const compactCompareEnd = new CompactDate("20240101090000");
+      const compactRangeCompare = new CompactDateRange(
+        compactCompareStart,
+        compactCompareEnd,
+      );
 
-  it("contains should return false if the date is exactly the start of the range and excludeStart is true", () => {
-    const compactCompare = new CompactDate("20240405123625");
-    const momentCompare = moment.utc("2024-04-05T12:36:25.000Z");
-    expect(
-      compactDateRange.contains(compactCompare, { excludeStart: true })
-    ).toEqual(momentDateRange.contains(momentCompare, { excludeStart: true }));
-  });
+      const momentCompareStart = moment.utc("2024-01-01T04:00:00.000Z");
+      const momentCompareEnd = moment.utc("2024-01-01T09:00:00.000Z");
+      const momentDateRangeCompare = new DateRange(
+        momentCompareStart,
+        momentCompareEnd,
+      );
 
-  it("contains should return true if the date is exactly the end of the range and excludeEnd is false", () => {
-    const compactCompare = new CompactDate("20240410123625");
-    const momentCompare = moment.utc("2024-04-10T12:36:25.000Z");
-    expect(compactDateRange.contains(compactCompare)).toEqual(
-      momentDateRange.contains(momentCompare)
-    );
-  });
+      expect(compactDateRange.contains(compactRangeCompare)).toEqual(
+        momentDateRange.contains(momentDateRangeCompare),
+      );
+    });
 
-  it("contains should return false if the date is exactly the end of the range and excludeEnd is true", () => {
-    const compactCompare = new CompactDate("20240410123625");
-    const momentCompare = moment.utc("2024-04-10T12:36:25.000Z");
-    expect(
-      compactDateRange.contains(compactCompare, { excludeEnd: true })
-    ).toEqual(momentDateRange.contains(momentCompare, { excludeEnd: true }));
-  });
+    it("should return false if range is not contained on end", () => {
+      const compactCompareStart = new CompactDate("20240101060000");
+      const compactCompareEnd = new CompactDate("20240101110000");
+      const compactRangeCompare = new CompactDateRange(
+        compactCompareStart,
+        compactCompareEnd,
+      );
 
-  it("contains should return true if the date is after the start and before the end, with excludeStart and excludeEnd true", () => {
-    const compactCompare = new CompactDate("20240407123625");
-    const momentCompare = moment.utc("2024-04-07T12:36:25.000Z");
-    expect(
-      compactDateRange.contains(compactCompare, {
-        excludeStart: true,
-        excludeEnd: true,
-      })
-    ).toEqual(
-      momentDateRange.contains(momentCompare, {
-        excludeStart: true,
-        excludeEnd: true,
-      })
-    );
+      const momentCompareStart = moment.utc("2024-01-01T06:00:00.000Z");
+      const momentCompareEnd = moment.utc("2024-01-01T11:00:00.000Z");
+      const momentDateRangeCompare = new DateRange(
+        momentCompareStart,
+        momentCompareEnd,
+      );
+
+      expect(compactDateRange.contains(compactRangeCompare)).toEqual(
+        momentDateRange.contains(momentDateRangeCompare),
+      );
+    });
+
+    it("should return false if range is not contained on both start and end", () => {
+      const compactCompareStart = new CompactDate("20240101040000");
+      const compactCompareEnd = new CompactDate("20240101110000");
+      const compactRangeCompare = new CompactDateRange(
+        compactCompareStart,
+        compactCompareEnd,
+      );
+
+      const momentCompareStart = moment.utc("2024-01-01T04:00:00.000Z");
+      const momentCompareEnd = moment.utc("2024-01-01T11:00:00.000Z");
+      const momentDateRangeCompare = new DateRange(
+        momentCompareStart,
+        momentCompareEnd,
+      );
+
+      expect(compactDateRange.contains(compactRangeCompare)).toEqual(
+        momentDateRange.contains(momentDateRangeCompare),
+      );
+    });
+
+    it("should return true if range is fully contained", () => {
+      const compactCompareStart = new CompactDate("20240101060000");
+      const compactCompareEnd = new CompactDate("20240101090000");
+      const compactRangeCompare = new CompactDateRange(
+        compactCompareStart,
+        compactCompareEnd,
+      );
+
+      const momentCompareStart = moment.utc("2024-01-01T06:00:00.000Z");
+      const momentCompareEnd = moment.utc("2024-01-01T09:00:00.000Z");
+      const momentDateRangeCompare = new DateRange(
+        momentCompareStart,
+        momentCompareEnd,
+      );
+
+      expect(compactDateRange.contains(compactRangeCompare)).toEqual(
+        momentDateRange.contains(momentDateRangeCompare),
+      );
+    });
+
+    it("should return true if ranges are equal", () => {
+      const compactRangeCompare = compactDateRange.clone();
+      const momentDateRangeCompare = momentDateRange.clone();
+
+      expect(compactDateRange.contains(compactRangeCompare)).toEqual(
+        momentDateRange.contains(momentDateRangeCompare),
+      );
+    });
+
+    it("should return false if ranges are equal and borders excluded", () => {
+      const compactRangeCompare = compactDateRange.clone();
+      const momentDateRangeCompare = momentDateRange.clone();
+
+      expect(
+        compactDateRange.contains(compactRangeCompare, {
+          excludeEnd: true,
+          excludeStart: true,
+        }),
+      ).toEqual(
+        momentDateRange.contains(momentDateRangeCompare, {
+          excludeEnd: true,
+          excludeStart: true,
+        }),
+      );
+    });
   });
 });
 
@@ -114,7 +234,7 @@ describe("overlaps", () => {
     const compactDateRange2 = new CompactDateRange(compactStart1, compactEnd1);
     const momentDateRange2 = new DateRange(momentStart1, momentEnd1);
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -128,7 +248,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -142,7 +262,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -156,7 +276,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -170,7 +290,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -184,7 +304,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -198,7 +318,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -212,7 +332,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(compactDateRange1.overlaps(compactDateRange2)).toEqual(
-      momentDateRange1.overlaps(momentDateRange2)
+      momentDateRange1.overlaps(momentDateRange2),
     );
   });
 
@@ -226,7 +346,7 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(
-      compactDateRange1.overlaps(compactDateRange2, { adjacent: true })
+      compactDateRange1.overlaps(compactDateRange2, { adjacent: true }),
     ).toEqual(momentDateRange1.overlaps(momentDateRange2, { adjacent: true }));
   });
 
@@ -240,26 +360,18 @@ describe("overlaps", () => {
     const momentDateRange2 = new DateRange(momentStart2, momentEnd2);
 
     expect(
-      compactDateRange1.overlaps(compactDateRange2, { adjacent: false })
+      compactDateRange1.overlaps(compactDateRange2, { adjacent: false }),
     ).toEqual(momentDateRange1.overlaps(momentDateRange2, { adjacent: false }));
   });
 });
 
 describe("by", () => {
-  const compactStart = new CompactDate("20240405123625");
-  const compactEnd = new CompactDate("20240408123625");
-  const compactDateRange = new CompactDateRange(compactStart, compactEnd);
-
-  const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
-  const momentEnd = moment.utc("2024-04-08T12:36:25.000Z");
-  const momentDateRange = new DateRange(momentStart, momentEnd);
-
   it("should return all dates incremented by 1 year within the range", () => {
     const compactStartYear = new CompactDate("20200405120000");
     const compactEndYear = new CompactDate("20250705150000");
     const compactDateRangeYear = new CompactDateRange(
       compactStartYear,
-      compactEndYear
+      compactEndYear,
     );
 
     const momentStart = moment.utc("2020-04-05T12:00:00.000Z");
@@ -267,7 +379,7 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("years")).map((date) =>
-      convertMomentToCompactDate(date)
+      convertMomentToCompactDate(date),
     );
     expect(compactDateRangeYear.by("years")).toEqual(expected);
   });
@@ -277,7 +389,7 @@ describe("by", () => {
     const compactEndYear = new CompactDate("20250705150000");
     const compactDateRangeYear = new CompactDateRange(
       compactStartYear,
-      compactEndYear
+      compactEndYear,
     );
 
     const momentStart = moment.utc("2020-04-05T12:00:00.000Z");
@@ -285,7 +397,7 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("years", { step: 2 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRangeYear.by("years", { step: 2 })).toEqual(expected);
   });
@@ -295,7 +407,7 @@ describe("by", () => {
     const compactEndMonth = new CompactDate("20240705150000");
     const compactDateRangeMonth = new CompactDateRange(
       compactStartMonth,
-      compactEndMonth
+      compactEndMonth,
     );
 
     const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
@@ -303,7 +415,7 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("months")).map((date) =>
-      convertMomentToCompactDate(date)
+      convertMomentToCompactDate(date),
     );
     expect(compactDateRangeMonth.by("months")).toEqual(expected);
   });
@@ -313,7 +425,7 @@ describe("by", () => {
     const compactEndMonth = new CompactDate("20240705150000");
     const compactDateRangeMonth = new CompactDateRange(
       compactStartMonth,
-      compactEndMonth
+      compactEndMonth,
     );
 
     const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
@@ -321,21 +433,37 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("months", { step: 2 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRangeMonth.by("months", { step: 2 })).toEqual(expected);
   });
 
   it("should return all dates incremented by 1 day within the range", () => {
+    const compactStart = new CompactDate("20240405123625");
+    const compactEnd = new CompactDate("20240408123625");
+    const compactDateRange = new CompactDateRange(compactStart, compactEnd);
+
+    const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
+    const momentEnd = moment.utc("2024-04-08T12:36:25.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
     const expected = Array.from(momentDateRange.by("days")).map((date) =>
-      convertMomentToCompactDate(date)
+      convertMomentToCompactDate(date),
     );
     expect(compactDateRange.by("days")).toEqual(expected);
   });
 
   it("should return dates incremented by 2 days within the range", () => {
+    const compactStart = new CompactDate("20240405123625");
+    const compactEnd = new CompactDate("20240408123625");
+    const compactDateRange = new CompactDateRange(compactStart, compactEnd);
+
+    const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
+    const momentEnd = moment.utc("2024-04-08T12:36:25.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
     const expected = Array.from(momentDateRange.by("days", { step: 2 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRange.by("days", { step: 2 })).toEqual(expected);
   });
@@ -345,15 +473,18 @@ describe("by", () => {
     const compactEndHour = new CompactDate("20240405150000");
     const compactDateRangeHour = new CompactDateRange(
       compactStartHour,
-      compactEndHour
+      compactEndHour,
     );
 
-    const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
-    const momentEnd = moment.utc("2024-04-05T15:00:00.000Z");
-    const momentDateRange = new DateRange(momentStart, momentEnd);
+    const momentStartInternal = moment.utc("2024-04-05T12:00:00.000Z");
+    const momentEndInternal = moment.utc("2024-04-05T15:00:00.000Z");
+    const momentDateRangeInternal = new DateRange(
+      momentStartInternal,
+      momentEndInternal,
+    );
 
-    const expected = Array.from(momentDateRange.by("hours")).map((date) =>
-      convertMomentToCompactDate(date)
+    const expected = Array.from(momentDateRangeInternal.by("hours")).map(
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRangeHour.by("hours")).toEqual(expected);
   });
@@ -363,16 +494,19 @@ describe("by", () => {
     const compactEndHour = new CompactDate("20240405180000");
     const compactDateRangeHour = new CompactDateRange(
       compactStartHour,
-      compactEndHour
+      compactEndHour,
     );
 
-    const momentStart = moment.utc("2024-04-05T12:00:00.000Z");
-    const momentEnd = moment.utc("2024-04-05T18:00:00.000Z");
-    const momentDateRange = new DateRange(momentStart, momentEnd);
-
-    const expected = Array.from(momentDateRange.by("hours", { step: 3 })).map(
-      (date) => convertMomentToCompactDate(date)
+    const momentStartInternal = moment.utc("2024-04-05T12:00:00.000Z");
+    const momentEndInternal = moment.utc("2024-04-05T18:00:00.000Z");
+    const momentDateRangeInternal = new DateRange(
+      momentStartInternal,
+      momentEndInternal,
     );
+
+    const expected = Array.from(
+      momentDateRangeInternal.by("hours", { step: 3 }),
+    ).map((date) => convertMomentToCompactDate(date));
     expect(compactDateRangeHour.by("hours", { step: 3 })).toEqual(expected);
   });
 
@@ -381,7 +515,7 @@ describe("by", () => {
     const compactEndHour = new CompactDate("20240102000000");
     const compactDateRangeHour = new CompactDateRange(
       compactStartHour,
-      compactEndHour
+      compactEndHour,
     );
 
     const momentStart = moment.utc("2024-01-01T00:00:00.000Z");
@@ -389,7 +523,7 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("minutes", { step: 3 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRangeHour.by("minutes", { step: 3 })).toEqual(expected);
   });
@@ -399,7 +533,7 @@ describe("by", () => {
     const compactEndHour = new CompactDate("20240102000000");
     const compactDateRangeHour = new CompactDateRange(
       compactStartHour,
-      compactEndHour
+      compactEndHour,
     );
 
     const momentStart = moment.utc("2024-01-01T00:00:00.000Z");
@@ -407,14 +541,22 @@ describe("by", () => {
     const momentDateRange = new DateRange(momentStart, momentEnd);
 
     const expected = Array.from(momentDateRange.by("seconds", { step: 3 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRangeHour.by("seconds", { step: 3 })).toEqual(expected);
   });
 
   it("should handle large step size, returning only the start date", () => {
+    const compactStart = new CompactDate("20240405123625");
+    const compactEnd = new CompactDate("20240408123625");
+    const compactDateRange = new CompactDateRange(compactStart, compactEnd);
+
+    const momentStart = moment.utc("2024-04-05T12:36:25.000Z");
+    const momentEnd = moment.utc("2024-04-08T12:36:25.000Z");
+    const momentDateRange = new DateRange(momentStart, momentEnd);
+
     const expected = Array.from(momentDateRange.by("days", { step: 10 })).map(
-      (date) => convertMomentToCompactDate(date)
+      (date) => convertMomentToCompactDate(date),
     );
     expect(compactDateRange.by("days", { step: 10 })).toEqual(expected);
   });
