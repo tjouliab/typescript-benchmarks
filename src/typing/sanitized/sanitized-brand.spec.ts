@@ -1,4 +1,4 @@
-import { isSanitized, sanitizeRecursive } from "./sanitized";
+import { isSanitized, sanitizeRecursive } from "./sanitized-brand";
 
 type Birth = {
   year: number;
