@@ -1,5 +1,5 @@
 import * as Benchmark from "benchmark";
-import { CompactDate } from "../compact-date";
+import { CompactDate } from "../../compact-date";
 
 const compactDate = CompactDate.now(true);
 

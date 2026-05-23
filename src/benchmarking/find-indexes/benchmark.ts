@@ -1,6 +1,6 @@
 import * as Benchmark from "benchmark";
 import { Timeline } from "./timeline.model";
-import { ArrayUtils } from "../array.utils";
+import { ArrayUtils } from "../../array.utils";
 import { findIndexesSuccessive } from "./find-indexes-successive";
 import { findIndexesBinary } from "./find-indexes-binary";
 
@@ -21,7 +21,7 @@ function getTimeline(length: number): Timeline[] {
 
 function doubleForLoop(
   timeline1: Timeline[],
-  timeline2: Timeline[]
+  timeline2: Timeline[],
 ): Map<string, number> {
   const indexes = new Map<string, number>();
 
@@ -45,27 +45,27 @@ const timelineRef = getTimeline(100);
 const timelineComp1 = ArrayUtils.sliceRandomly(
   getTimeline(100),
   1,
-  compareTimeline
+  compareTimeline,
 );
 const timelineComp5 = ArrayUtils.sliceRandomly(
   getTimeline(100),
   5,
-  compareTimeline
+  compareTimeline,
 );
 const timelineComp10 = ArrayUtils.sliceRandomly(
   getTimeline(100),
   10,
-  compareTimeline
+  compareTimeline,
 );
 const timelineComp25 = ArrayUtils.sliceRandomly(
   getTimeline(100),
   25,
-  compareTimeline
+  compareTimeline,
 );
 const timelineComp50 = ArrayUtils.sliceRandomly(
   getTimeline(100),
   50,
-  compareTimeline
+  compareTimeline,
 );
 
 // Create a new benchmark suite

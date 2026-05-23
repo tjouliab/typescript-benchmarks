@@ -1,7 +1,7 @@
 import * as Benchmark from "benchmark";
 import * as _ from "lodash";
-import { MockObjectComplex } from "../mock.utils";
-import { BenchmarkUtils } from "../benchmark.utils";
+import { MockObjectComplex } from "../../mock.utils";
+import { BenchmarkUtils } from "../../benchmark.utils";
 import { deepCopy as deepCopyRecursive } from "./deep-copy";
 
 /**
@@ -42,7 +42,7 @@ BenchmarkUtils.addObjectComplex(
     deepCopyJSON,
     deepCopyRecursive,
   ],
-  [10, 100, 1_000]
+  [10, 100, 1_000],
 );
 
 suite

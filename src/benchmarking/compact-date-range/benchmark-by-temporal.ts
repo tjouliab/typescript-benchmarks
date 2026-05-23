@@ -1,7 +1,7 @@
 import * as Benchmark from "benchmark";
 import { Duration } from "luxon";
-import { CompactDate, TimeUnitBase } from "../compact-date";
-import { CompactDateRange } from "../compact-date-range";
+import { CompactDate, TimeUnitBase } from "../../compact-date";
+import { CompactDateRange } from "../../compact-date-range";
 import {
   convertDateTimeToCompactDate,
   convertDateToCompactDate,
@@ -9,7 +9,7 @@ import {
   convertLuxonToCompactDate,
   convertMomentToCompactDate,
   isoStringToCompactDateRange,
-} from "../compact-date.utils";
+} from "../../compact-date.utils";
 
 const startLong = "2025-01-01T00:00:00.000Z";
 const endLong = "2025-03-01T00:00:00.000Z";

@@ -1,10 +1,10 @@
 import { DateRange } from "moment-range";
-import { CompactDate } from "../compact-date";
-import { CompactDateRange } from "../compact-date-range";
+import { CompactDate } from "../../compact-date";
+import { CompactDateRange } from "../../compact-date-range";
 import {
   convertIsoToCompact,
   convertIsoToCompactDate,
-} from "../compact-date.utils";
+} from "../../compact-date.utils";
 import * as Benchmark from "benchmark";
 import * as moment from "moment";
 import { DateTime, Duration } from "luxon";
@@ -23,11 +23,11 @@ const endCompactLong = convertIsoToCompactDate(endLong);
 
 const getTimelineCompressionRange = (
   start: string,
-  end: string
+  end: string,
 ): { range: Array<CompactDate>; step: number } => {
   const dateRange: CompactDateRange = new CompactDateRange(
     new CompactDate(convertIsoToCompact(start)),
-    new CompactDate(convertIsoToCompact(end))
+    new CompactDate(convertIsoToCompact(end)),
   );
   const days = dateRange.diff("days");
   // default over 2 days
@@ -52,7 +52,7 @@ const stepMonths = 1;
 
 const dateRangeLong: CompactDateRange = new CompactDateRange(
   new CompactDate(convertIsoToCompact(startLong)),
-  new CompactDate(convertIsoToCompact(endLong))
+  new CompactDate(convertIsoToCompact(endLong)),
 );
 
 const momentStart = moment.utc(startLong);

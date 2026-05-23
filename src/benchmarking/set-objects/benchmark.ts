@@ -1,7 +1,7 @@
 import * as Benchmark from "benchmark";
 import { SetObjectsHash } from "./set-objects-hash";
-import { MockObjectSimple } from "../mock.utils";
-import { BenchmarkUtils } from "../benchmark.utils";
+import { MockObjectSimple } from "../../mock.utils";
+import { BenchmarkUtils } from "../../benchmark.utils";
 import { SetObjectsComp } from "./set-objects-comp";
 
 /**
@@ -13,7 +13,7 @@ import { SetObjectsComp } from "./set-objects-comp";
  */
 
 function filterListWithUniqueId(
-  objects: MockObjectSimple[]
+  objects: MockObjectSimple[],
 ): MockObjectSimple[] {
   const result: MockObjectSimple[] = [];
   for (const object of objects) {
@@ -24,7 +24,7 @@ function filterListWithUniqueId(
   return result;
 }
 function filterListWithUniqueIdSorted(
-  objects: MockObjectSimple[]
+  objects: MockObjectSimple[],
 ): MockObjectSimple[] {
   const result: MockObjectSimple[] = [];
   for (const object of objects) {
@@ -39,10 +39,10 @@ function createSetObjectsHash(objects: MockObjectSimple[]): MockObjectSimple[] {
   return [...new SetObjectsHash(objects, (object) => object.id)];
 }
 function createSetObjectsHashSorted(
-  objects: MockObjectSimple[]
+  objects: MockObjectSimple[],
 ): MockObjectSimple[] {
   return [...new SetObjectsHash(objects, (object) => object.id)].sort(
-    (a, b) => a.id - b.id
+    (a, b) => a.id - b.id,
   );
 }
 
@@ -63,7 +63,7 @@ BenchmarkUtils.addObjectSimple(
     createSetObjectsHashSorted,
     creatSetObjectsComp,
   ],
-  [10, 100, 1_000, 10_000, 100_000, 1_000_000]
+  [10, 100, 1_000, 10_000, 100_000, 1_000_000],
 );
 
 suite

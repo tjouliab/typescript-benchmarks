@@ -1,13 +1,13 @@
 import * as Benchmark from "benchmark";
 import { DateTime } from "luxon";
 import * as moment from "moment";
-import { CompactDate } from "../compact-date";
+import { CompactDate } from "../../compact-date";
 import {
   convertDateToCompactDate,
   convertIsoToCompactDate,
   convertLuxonToCompactDate,
   convertMomentToCompactDate,
-} from "../compact-date.utils";
+} from "../../compact-date.utils";
 
 const instant = Temporal.Now.instant();
 const plainDateTime = Temporal.Now.plainDateTimeISO();

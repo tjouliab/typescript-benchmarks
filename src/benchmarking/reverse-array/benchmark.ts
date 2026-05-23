@@ -1,5 +1,5 @@
 import * as Benchmark from "benchmark";
-import { BenchmarkUtils } from "../benchmark.utils";
+import { BenchmarkUtils } from "../../benchmark.utils";
 
 function reverseUnshift<T>(objects: T[]): T[] {
   const result: T[] = [];
@@ -44,7 +44,7 @@ const suite = new Benchmark.Suite();
 BenchmarkUtils.addObjectSimple(
   suite,
   [reverseUnshift, reverseArray, reverseDoublePush, reverseInversedPush],
-  [10, 100, 1_000, 10_000, 100_000]
+  [10, 100, 1_000, 10_000, 100_000],
 );
 
 suite

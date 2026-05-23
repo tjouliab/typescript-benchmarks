@@ -1,10 +1,10 @@
 import * as Benchmark from "benchmark";
-import { CompactDate, TimeUnitBase } from "../compact-date";
+import { CompactDate, TimeUnitBase } from "../../compact-date";
 import {
   convertDateTimeToCompactDate,
   convertInstantToCompactDate,
   convertLuxonToCompactDate,
-} from "../compact-date.utils";
+} from "../../compact-date.utils";
 
 const compactDate = CompactDate.now(true);
 

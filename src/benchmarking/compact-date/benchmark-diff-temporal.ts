@@ -1,5 +1,5 @@
 import * as Benchmark from "benchmark";
-import { CompactDate, TimeUnitBase } from "../compact-date";
+import { CompactDate, TimeUnitBase } from "../../compact-date";
 
 const endDate = CompactDate.now(true);
 const startDate = endDate.clone().subtract(3, "days");
