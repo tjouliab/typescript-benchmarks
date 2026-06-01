@@ -16,9 +16,9 @@ export abstract class MockUtils {
       [...Array(count).keys()].map((i) => {
         return {
           id: i % 1000,
-          idString: `${i % 1000}`,
+          idString: crypto.randomUUID(),
         };
-      })
+      }),
     );
   }
 
@@ -31,7 +31,7 @@ export abstract class MockUtils {
           obj: this.generateSimple(1)[0],
           listObj: this.generateSimple(Math.floor(count / 10)),
         };
-      })
+      }),
     );
   }
 }
