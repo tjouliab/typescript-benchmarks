@@ -1,11 +1,11 @@
 import * as Benchmark from "benchmark";
 
 type Shape = {
-  a: number | undefined;
-  b: number | undefined;
-  c: number | undefined;
-  d: number | undefined;
-  e: number | undefined;
+  a?: number;
+  b?: number;
+  c?: number;
+  d?: number;
+  e?: number;
 };
 
 function full() {
@@ -18,45 +18,45 @@ function full() {
 }
 
 function monomorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o3 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o4 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o5 = { a: undefined, b: 0, c: 0, d: 0, e: 0 }; // all shapes are equal
+  const o1 = { b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { b: 0, c: 0, d: 0, e: 0 };
+  const o3 = { b: 0, c: 0, d: 0, e: 0 };
+  const o4 = { b: 0, c: 0, d: 0, e: 0 };
+  const o5 = { b: 0, c: 0, d: 0, e: 0 }; // all shapes are equal
   return { o1, o2, o3, o4, o5 };
 }
 
 function polymorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o3 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o4 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o5 = { b: 0, a: undefined, c: 0, d: 0, e: 0 }; // this shape is different
+  const o1 = { b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { b: 0, c: 0, d: 0, e: 0 };
+  const o3 = { b: 0, c: 0, d: 0, e: 0 };
+  const o4 = { b: 0, c: 0, d: 0, e: 0 };
+  const o5 = { a: 0, c: 0, d: 0, e: 0 }; // this shape is different
   return { o1, o2, o3, o4, o5 };
 }
 
 function megamorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { b: 0, a: undefined, c: 0, d: 0, e: 0 };
-  const o3 = { b: 0, c: 0, a: undefined, d: 0, e: 0 };
-  const o4 = { b: 0, c: 0, d: 0, a: undefined, e: 0 };
-  const o5 = { b: 0, c: 0, d: 0, e: 0, a: undefined }; // all shapes are different
+  const o1 = { b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { a: 0, c: 0, d: 0, e: 0 };
+  const o3 = { a: 0, b: 0, d: 0, e: 0 };
+  const o4 = { a: 0, b: 0, c: 0, e: 0 };
+  const o5 = { a: 0, b: 0, c: 0, d: 0 }; // all shapes are different
   return { o1, o2, o3, o4, o5 };
 }
 
 // test case
 function add(a1: Shape, b1: Shape) {
   return (
-    (a1.a ?? 1) +
-    (a1.b ?? 1) +
-    (a1.c ?? 1) +
-    (a1.d ?? 1) +
-    (a1.e ?? 1) +
-    (b1.a ?? 1) +
-    (b1.b ?? 1) +
-    (b1.c ?? 1) +
-    (b1.d ?? 1) +
-    (b1.e ?? 1)
+    (a1?.a ?? 1) +
+    (a1?.b ?? 1) +
+    (a1?.c ?? 1) +
+    (a1?.d ?? 1) +
+    (a1?.e ?? 1) +
+    (b1?.a ?? 1) +
+    (b1?.b ?? 1) +
+    (b1?.c ?? 1) +
+    (b1?.d ?? 1) +
+    (b1?.e ?? 1)
   );
 }
 

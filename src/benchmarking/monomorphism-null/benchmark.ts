@@ -1,11 +1,11 @@
 import * as Benchmark from "benchmark";
 
 type Shape = {
-  a: number | undefined;
-  b: number | undefined;
-  c: number | undefined;
-  d: number | undefined;
-  e: number | undefined;
+  a: number | null;
+  b: number | null;
+  c: number | null;
+  d: number | null;
+  e: number | null;
 };
 
 function full() {
@@ -18,29 +18,29 @@ function full() {
 }
 
 function monomorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o3 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o4 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o5 = { a: undefined, b: 0, c: 0, d: 0, e: 0 }; // all shapes are equal
+  const o1 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o3 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o4 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o5 = { a: null, b: 0, c: 0, d: 0, e: 0 }; // all shapes are equal
   return { o1, o2, o3, o4, o5 };
 }
 
 function polymorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o3 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o4 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o5 = { b: 0, a: undefined, c: 0, d: 0, e: 0 }; // this shape is different
+  const o1 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o3 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o4 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o5 = { b: 0, a: null, c: 0, d: 0, e: 0 }; // this shape is different
   return { o1, o2, o3, o4, o5 };
 }
 
 function megamorphic() {
-  const o1 = { a: undefined, b: 0, c: 0, d: 0, e: 0 };
-  const o2 = { b: 0, a: undefined, c: 0, d: 0, e: 0 };
-  const o3 = { b: 0, c: 0, a: undefined, d: 0, e: 0 };
-  const o4 = { b: 0, c: 0, d: 0, a: undefined, e: 0 };
-  const o5 = { b: 0, c: 0, d: 0, e: 0, a: undefined }; // all shapes are different
+  const o1 = { a: null, b: 0, c: 0, d: 0, e: 0 };
+  const o2 = { b: 0, a: null, c: 0, d: 0, e: 0 };
+  const o3 = { b: 0, c: 0, a: null, d: 0, e: 0 };
+  const o4 = { b: 0, c: 0, d: 0, a: null, e: 0 };
+  const o5 = { b: 0, c: 0, d: 0, e: 0, a: null }; // all shapes are different
   return { o1, o2, o3, o4, o5 };
 }
 
